@@ -1,0 +1,6 @@
+@JLearn_HostAddress = http://localhost:5225
+
+GET {{JLearn_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
