@@ -27,7 +27,7 @@
 
 ## Reflection Entries
 
-### Nguyễn Hoàn Quân — Phase 1 & 2 (2026-05-20)
+### Nguyễn Hồ Anh Quân — Phase 1 & 2 (2026-05-20)
 
 **AI đã giúp được gì?**
 - Đánh giá tài liệu SRS, phát hiện thiếu sót trong models ban đầu

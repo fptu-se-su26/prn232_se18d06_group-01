@@ -28,9 +28,13 @@ Mỗi entry sử dụng format sau:
 
 ### 2026-05-20 — Khởi tạo dự án: Phase 1 & 2 (Foundation + Auth + Core APIs)
 
-- **Người thực hiện**: Nguyễn Hoàn Quân
+- **Người thực hiện**: Nguyễn Hồ Anh Quân
 - **Công cụ AI**: Gemini (Antigravity Agent)
-- **Prompt**: Cung cấp tài liệu SRS chi tiết và yêu cầu đánh giá, lên kế hoạch, sau đó implement Phase 1 (Foundation) và Phase 2 (Auth + Core APIs)
+- **Prompt**: 
+  > 1. [Nội dung SRS] Đánh giá dự án này đã oke để bắt đầu làm chưa
+  > 2. gợi ý các giải pháp thích hợp cho các câu hỏi của bạn
+  > 3. okay giờ xuất lại 1 file kế hoạch chuẩn trước , chưa code vội
+  > 4. tiếp tục phase 2 đi
 - **Kết quả AI gợi ý**:
   - Đánh giá SRS, đề xuất 5 quyết định thiết kế (inline OptionA-D, Global Query Filter, In-Memory Cache, v.v.)
   - Tạo Implementation Plan chi tiết 6 phase
