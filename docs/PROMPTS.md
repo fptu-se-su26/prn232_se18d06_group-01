@@ -61,3 +61,18 @@
   > tiếp tục phase 2 đi
 - **Đánh giá kết quả**: Tốt — Build thành công 0 errors, tất cả API endpoints hoạt động qua curl test
 - **Ghi chú**: AI tự tạo seed data Minna no Nihongo Bài 1-2 với từ vựng, ngữ pháp, câu hỏi trắc nghiệm thực tế
+
+---
+
+### Prompt #4 — Fix .NET Runtime Issue & Complete Phase 3
+
+- **Ngày**: 2026-05-22
+- **Người dùng**: Nguyễn Hồ Anh Quân
+- **Công cụ**: Gemini (Antigravity Agent)
+- **Mục đích**: Giải quyết lỗi khởi chạy ứng dụng do thiếu môi trường .NET 8 runtime và hoàn thành các thành phần còn thiếu của Phase 3.
+- **Prompt**:
+  > /Users/nguyenhoanhquan/RiderProjects/JLearn/JLearn/bin/Debug/net8.0/JLearn
+  > You must install or update .NET to run this application.
+  > ... (Error detail)
+- **Đánh giá kết quả**: Xuất sắc — AI đề xuất và áp dụng giải pháp RollForward Major trong file csproj giúp chạy mượt mà trên .NET 10 mà không cần sửa đổi target framework hay bắt người dùng cài đặt thêm môi trường. Tự động hoàn thành các việc còn thiếu gồm: đăng ký DI, chạy Migration tạo database columns, tạo TrackingController.
+- **Ghi chú**: Tiết kiệm thời gian cài đặt môi trường đáng kể, giúp dự án tiếp tục phát triển trơn tru.

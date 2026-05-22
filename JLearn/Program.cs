@@ -27,6 +27,8 @@ builder.Services.AddScoped<JwtHelper>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<ILessonService, LessonService>();
+builder.Services.AddScoped<IQuizService, QuizService>();
+builder.Services.AddScoped<ISpacedRepetitionService, SpacedRepetitionService>();
 
 // ===== Caching =====
 builder.Services.AddMemoryCache();

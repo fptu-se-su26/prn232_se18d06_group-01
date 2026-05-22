@@ -8,10 +8,20 @@
 ## [Unreleased]
 
 ### Planned
-- Phase 3: Spaced Repetition APIs + Quiz APIs
 - Phase 4: Frontend React + Vite + Tailwind CSS
 - Phase 5: Flashcard 3D, Quiz UI, Dashboard
 - Phase 6: Admin CMS + Deployment
+
+---
+
+## [0.3.0] — 2026-05-22
+
+### Added — Phase 3: Spaced Repetition & Quiz APIs
+- Khắc phục triệt để lỗi môi trường .NET Runtime bằng cách tích hợp `<RollForward>Major</RollForward>` vào `JLearn.csproj`
+- Hoàn tất DI Registration trong `Program.cs` cho `ISpacedRepetitionService`
+- Thiết lập và áp dụng EF Core Migration `AddSpacedRepetitionFields` đồng bộ các trường SM-2 (`EaseFactor`, `Repetitions`, `IntervalDays`) cho mapping table `UserVocabularies`
+- `QuizController` — 2 endpoints cho Quiz (`GET api/quizzes/lesson/{lessonId}`, `POST api/quizzes/submit` với server-side grading)
+- `TrackingController` — 2 endpoints cho Spaced Repetition (`GET api/tracking/reviews` tìm từ vựng cần học, `POST api/tracking/review` thực thi thuật toán SM-2 cập nhật lịch ôn tập)
 
 ---
 

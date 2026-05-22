@@ -49,3 +49,25 @@ Mỗi entry sử dụng format sau:
   - `Controllers/` (AuthController, CoursesController, LessonsController)
   - `Services/` (AuthService, CourseService, LessonService)
   - `Repositories/`, `UnitOfWork/`, `DTOs/`, `Middleware/`, `Helpers/`
+
+### 2026-05-22 — Hoàn thành Phase 3: Spaced Repetition & Quiz APIs
+
+- **Người thực hiện**: Nguyễn Hồ Anh Quân
+- **Công cụ AI**: Gemini (Antigravity Agent)
+- **Prompt**:
+  > /Users/nguyenhoanhquan/RiderProjects/JLearn/JLearn/bin/Debug/net8.0/JLearn
+  > You must install or update .NET to run this application.
+  > ... (Error log about missing runtime version 8.0.0, only 10.0.1 found)
+- **Kết quả AI gợi ý**:
+  - Khắc phục lỗi runtime bằng cách thêm cấu hình `<RollForward>Major</RollForward>` vào `JLearn.csproj`, cho phép chạy ứng dụng net8.0 trên môi trường chỉ có .NET 10 runtime.
+  - Hoàn tất DI registration trong `Program.cs` cho `ISpacedRepetitionService`.
+  - Tạo EF Core Migration mới `AddSpacedRepetitionFields` chứa các trường SM-2 thuật toán (`EaseFactor`, `Repetitions`, `IntervalDays`) cho `UserVocabulary`, và áp dụng thành công vào Database.
+  - Tạo `TrackingController.cs` cung cấp 2 endpoints chính: `GET api/tracking/reviews` (danh sách từ vựng đến hạn ôn tập) và `POST api/tracking/review` (nộp kết quả ôn tập SM-2).
+- **Phần đã sử dụng**: Toàn bộ cấu hình csproj, DI, Migration, và code trong `TrackingController.cs`.
+- **Phần đã chỉnh sửa**: Không có chỉnh sửa thủ công nào khác, mọi thành phần biên dịch 100% thành công không có lỗi/cảnh báo.
+- **Minh chứng**: Hoạt động thành công qua CLI build & run, database update.
+- **File liên quan**:
+  - `JLearn.csproj`
+  - `Program.cs`
+  - `Controllers/TrackingController.cs`
+  - `Migrations/` (Migration files cho Spaced Repetition fields)

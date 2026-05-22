@@ -49,3 +49,23 @@
 - Cung cấp SRS càng chi tiết → AI output càng chính xác
 - Nên review từng quyết định thiết kế thay vì chấp nhận tất cả
 - AI rất tốt cho boilerplate nhưng business logic cần kiểm tra kỹ
+
+---
+
+### Nguyễn Hồ Anh Quân — Phase 3 (2026-05-22)
+
+**AI đã giúp được gì?**
+- Khắc phục lỗi môi trường chạy (runtime) do phiên bản .NET 8 chưa được cài đặt thông qua tùy chọn cấu hình `RollForward` rất thông minh.
+- Phát hiện các phần đăng ký DI còn thiếu (`ISpacedRepetitionService`).
+- Hỗ trợ viết EF Core Migration để tự động hóa việc cập nhật cấu trúc database phù hợp với thuật toán SM-2.
+- Xây dựng `TrackingController` hoàn chỉnh, chuẩn hóa kiểu đầu ra theo định dạng `ApiResponse<T>`.
+
+**Hạn chế / Vấn đề gặp phải?**
+- Cần chú ý kỹ các dependency injection khi viết các controller/service mới để tránh lỗi Runtime lúc khởi chạy.
+
+**Phần nào tự làm (không dùng AI)?**
+- Viết interface `ISpacedRepetitionService` và class `SpacedRepetitionService` chứa thuật toán SM-2 (đã viết xong từ phiên trước).
+
+**Bài học rút ra?**
+- Tính năng RollForward trong .NET rất hữu ích cho các dự án đa phiên bản khi phát triển trên môi trường cục bộ khác nhau.
+- Luôn kiểm tra các Migration và chạy `dotnet ef database update` sau khi chỉnh sửa Model.
