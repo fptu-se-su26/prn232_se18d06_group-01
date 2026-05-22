@@ -13,6 +13,9 @@ public class Vocabulary : BaseEntity
 
     [MaxLength(50)]
     public string? Kanji { get; set; }
+    
+    [MaxLength(50)]
+    public string? Hira { get; set; }
 
     [Required, MaxLength(100)]
     public string Kana { get; set; } = string.Empty;
