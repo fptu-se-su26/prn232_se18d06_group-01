@@ -1,4 +1,5 @@
 using JLearn.DTOs.Quiz;
+using JLearn.Models;
 using JLearn.Services.Interfaces;
 using JLearn.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
@@ -50,16 +51,54 @@ public class QuizService : IQuizService
         {
             throw new KeyNotFoundException("Khong tim cau hoi cho bai hoc nay");
         }
+
         int totalQuestions = dbQuestions.Count;
         int correctCount = 0;
         var details = new List<QuizResultDetailDto>();
-       // foreach (var dbQ in dbQuestions)
-     //   {
-     //       if (dto.Answer== dbQ.CorrectAnswer)
-      //      {
-      //          
-     //       }
-     //   }
-     throw new KeyNotFoundException();
+
+        // Duyệt qua từng câu hỏi trong DB để chấm điểm
+        foreach (var dbQ in dbQuestions)
+        {
+            // Tìm câu trả lời của học viên cho câu hỏi này
+            var userAnswer = dto.Answer?.FirstOrDefault(a => a.QuestionId == dbQ.QuestionId);
+            string selected = userAnswer?.UserAnswer?.Trim().ToUpper() ?? string.Empty;
+
+            // So sánh đáp án học viên với đáp án đúng trong DB
+            bool isCorrect = selected == dbQ.CorrectAnswer.Trim().ToUpper();
+            if (isCorrect) correctCount++;
+
+            details.Add(new QuizResultDetailDto
+            {
+                QuestionId = dbQ.QuestionId,
+                QuestionText = dbQ.Content,
+                UserAnswer = selected,
+                CorrectAnswer = dbQ.CorrectAnswer,
+                IsCorrect = isCorrect
+            });
+        }
+
+        // Tính tỷ lệ điểm phần trăm
+        double scorePercentage = Math.Round(((double)correctCount / totalQuestions) * 100, 2);
+
+        // Lưu kết quả làm bài vào Database
+        var quizResult = new QuizResult
+        {
+            UserId = userId,
+            LessonId = dto.LessonId,
+            TotalScore = correctCount,
+            TotalQuestions = totalQuestions,
+            CompletedAt = DateTime.UtcNow
+        };
+
+        await _unitOfWork.QuizResults.AddAsync(quizResult);
+        await _unitOfWork.SaveChangesAsync();
+
+        return new QuizResultDto
+        {
+            TotalQuestions = totalQuestions,
+            CorrectAnswers = correctCount,
+            Score = scorePercentage,
+            Details = details
+        };
     }
 }

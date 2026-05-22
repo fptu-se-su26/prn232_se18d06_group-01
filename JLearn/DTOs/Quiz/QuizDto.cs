@@ -20,7 +20,7 @@ public class UserAswerDto
 public class QuizSubmitDto
 {
     public int LessonId { get; set; }
-    public List<UserAswerDto> Answer { get; set; }
+    public List<UserAswerDto> Answer { get; set; } = new();
 }
 
 public class QuizResultDetailDto
