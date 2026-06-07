@@ -7,6 +7,21 @@ public static class DbSeeder
 {
     public static async Task SeedAsync(AppDbContext context)
     {
+        // Ensure test admin exists
+        var testAdmin = await context.Users.FirstOrDefaultAsync(u => u.Email == "admin@test.com");
+        if (testAdmin == null)
+        {
+            testAdmin = new User
+            {
+                Email = "admin@test.com",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("123"),
+                FullName = "Admin JLearn",
+                Role = UserRole.Admin
+            };
+            context.Users.Add(testAdmin);
+            await context.SaveChangesAsync();
+        }
+
         // Only seed if no data exists
         if (await context.Courses.AnyAsync())
             return;
