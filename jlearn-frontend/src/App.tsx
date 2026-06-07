@@ -9,6 +9,9 @@ import CoursesPage from './pages/CoursesPage';
 import LessonDetailPage from './pages/LessonDetailPage';
 import ReviewQueuePage from './pages/ReviewQueuePage';
 import { QuizPage } from './pages/QuizPage';
+import CustomDecksPage from './pages/CustomDecksPage';
+import DeckDetailPage from './pages/DeckDetailPage';
+import CustomReviewPage from './pages/CustomReviewPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -36,6 +39,9 @@ function AppRoutes() {
         <Route path="/courses/:id" element={<LessonDetailPage />} />
         <Route path="/reviews" element={<ReviewQueuePage />} />
         <Route path="/quizzes/lesson/:lessonId" element={<QuizPage />} />
+        <Route path="/decks" element={<CustomDecksPage />} />
+        <Route path="/decks/:id" element={<DeckDetailPage />} />
+        <Route path="/decks/:id/review" element={<CustomReviewPage />} />
       </Route>
 
       {/* Admin Routes */}

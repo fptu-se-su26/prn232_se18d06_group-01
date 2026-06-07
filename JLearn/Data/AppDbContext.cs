@@ -18,6 +18,8 @@ public class AppDbContext : DbContext
     public DbSet<Question> Questions => Set<Question>();
     public DbSet<UserVocabulary> UserVocabularies => Set<UserVocabulary>();
     public DbSet<QuizResult> QuizResults => Set<QuizResult>();
+    public DbSet<CustomDeck> CustomDecks => Set<CustomDeck>();
+    public DbSet<CustomCard> CustomCards => Set<CustomCard>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -87,6 +89,20 @@ public class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
+        // === CustomDeck ===
+        modelBuilder.Entity<CustomDeck>(entity =>
+        {
+            entity.HasMany(d => d.CustomCards)
+                .WithOne(c => c.CustomDeck)
+                .HasForeignKey(c => c.DeckId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(d => d.User)
+                .WithMany(u => u.CustomDecks)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
         // === Global Query Filters (Soft Delete) ===
         modelBuilder.Entity<User>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Course>().HasQueryFilter(e => !e.IsDeleted);
@@ -94,6 +110,8 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Vocabulary>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Grammar>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Question>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<CustomDeck>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<CustomCard>().HasQueryFilter(e => !e.IsDeleted);
     }
 
     public override int SaveChanges()

@@ -13,5 +13,7 @@ public interface IUnitOfWork : IDisposable
     IGenericRepository<Question> Questions { get; }
     IGenericRepository<UserVocabulary> UserVocabularies { get; }
     IGenericRepository<QuizResult> QuizResults { get; }
+    IGenericRepository<CustomDeck> CustomDecks { get; }
+    IGenericRepository<CustomCard> CustomCards { get; }
     Task<int> SaveChangesAsync();
 }

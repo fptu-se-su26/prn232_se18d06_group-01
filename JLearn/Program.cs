@@ -29,6 +29,7 @@ builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<ILessonService, LessonService>();
 builder.Services.AddScoped<IQuizService, QuizService>();
 builder.Services.AddScoped<ISpacedRepetitionService, SpacedRepetitionService>();
+builder.Services.AddScoped<ICustomDeckService, CustomDeckService>();
 
 // ===== Caching =====
 builder.Services.AddMemoryCache();

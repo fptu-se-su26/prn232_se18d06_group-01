@@ -17,6 +17,8 @@ public class UnitOfWork : IUnitOfWork
     private IGenericRepository<Question>? _questions;
     private IGenericRepository<UserVocabulary>? _userVocabularies;
     private IGenericRepository<QuizResult>? _quizResults;
+    private IGenericRepository<CustomDeck>? _customDecks;
+    private IGenericRepository<CustomCard>? _customCards;
 
     public UnitOfWork(AppDbContext context)
     {
@@ -46,6 +48,12 @@ public class UnitOfWork : IUnitOfWork
 
     public IGenericRepository<QuizResult> QuizResults =>
         _quizResults ??= new GenericRepository<QuizResult>(_context);
+
+    public IGenericRepository<CustomDeck> CustomDecks =>
+        _customDecks ??= new GenericRepository<CustomDeck>(_context);
+
+    public IGenericRepository<CustomCard> CustomCards =>
+        _customCards ??= new GenericRepository<CustomCard>(_context);
 
     public async Task<int> SaveChangesAsync()
     {
