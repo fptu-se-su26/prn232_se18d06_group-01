@@ -76,3 +76,16 @@
   > ... (Error detail)
 - **Đánh giá kết quả**: Xuất sắc — AI đề xuất và áp dụng giải pháp RollForward Major trong file csproj giúp chạy mượt mà trên .NET 10 mà không cần sửa đổi target framework hay bắt người dùng cài đặt thêm môi trường. Tự động hoàn thành các việc còn thiếu gồm: đăng ký DI, chạy Migration tạo database columns, tạo TrackingController.
 - **Ghi chú**: Tiết kiệm thời gian cài đặt môi trường đáng kể, giúp dự án tiếp tục phát triển trơn tru.
+
+---
+
+### Prompt #5 — Khởi tạo Frontend & Sử dụng Subagents (Phase 4 & 5)
+
+- **Ngày**: 2026-05-22
+- **Người dùng**: Nguyễn Hồ Anh Quân
+- **Công cụ**: Gemini (Antigravity Agent)
+- **Mục đích**: Chuyển sang phần Frontend, yêu cầu tạo hệ thống React với Tailwind CSS và yêu cầu chia nhỏ công việc cho các subagents xử lý song song.
+- **Prompt**:
+  > "thuần tailwind css , thực hiện đi" (phê duyệt kế hoạch) và trước đó: "giờ thực hiện phase 4 cho tôi , gọi các subagent để hoàn thành phase 4,5 luôn"
+- **Đánh giá kết quả**: Rất Tốt — AI hiểu ý tưởng chia nhỏ công việc, đã cấu hình xong nền tảng React Vite Tailwind, sau đó gọi 3 Subagents chạy đa luồng để làm song song các trang: Danh sách khóa học, Chi tiết bài học, Làm trắc nghiệm và Ôn tập flashcard.
+- **Ghi chú**: Chiến lược chia task cho Subagents giúp phát triển UI rất nhanh chóng và không làm gián đoạn Main Agent.

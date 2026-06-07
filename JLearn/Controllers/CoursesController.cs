@@ -55,4 +55,36 @@ public class CoursesController : ControllerBase
         var result = await _lessonService.GetLessonsByCourseAsync(courseId);
         return Ok(ApiResponse<List<LessonDto>>.SuccessResponse(result));
     }
+
+    [HttpPost]
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+    public async Task<IActionResult> CreateCourse([FromBody] CourseCreateDto dto)
+    {
+        var result = await _courseService.CreateAsync(dto);
+        return Ok(ApiResponse<CourseDto>.SuccessResponse(result));
+    }
+
+    [HttpPut("{id}")]
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateCourse(int id, [FromBody] CourseUpdateDto dto)
+    {
+        try
+        {
+            var result = await _courseService.UpdateAsync(id, dto);
+            return Ok(ApiResponse<CourseDto>.SuccessResponse(result));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ApiResponse<object>.ErrorResponse(ex.Message, 404));
+        }
+    }
+
+    [HttpDelete("{id}")]
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteCourse(int id)
+    {
+        var result = await _courseService.DeleteAsync(id);
+        if (!result) return NotFound(ApiResponse<object>.ErrorResponse("Course not found", 404));
+        return Ok(ApiResponse<bool>.SuccessResponse(true));
+    }
 }

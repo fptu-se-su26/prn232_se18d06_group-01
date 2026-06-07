@@ -71,3 +71,23 @@ Mỗi entry sử dụng format sau:
   - `Program.cs`
   - `Controllers/TrackingController.cs`
   - `Migrations/` (Migration files cho Spaced Repetition fields)
+
+### 2026-05-22 — Khởi tạo Frontend & Tích hợp tính năng: Phase 4 & 5
+
+- **Người thực hiện**: Nguyễn Hồ Anh Quân
+- **Công cụ AI**: Gemini (Antigravity Agent + 3 Subagents)
+- **Prompt**:
+  > "thuần tailwind css , thực hiện đi" (và trước đó: "giờ thực hiện phase 4 cho tôi , gọi các subagent để hoàn thành phase 4,5 luôn")
+- **Kết quả AI gợi ý**:
+  - Tự động thiết lập React + Vite + TypeScript.
+  - Cấu hình Tailwind CSS v4, Axios với interceptors (refresh token), và React Router.
+  - Xây dựng Layout, Login, Dashboard (Phase 4).
+  - Phân công 3 Subagents chạy song song để phát triển:
+    - **Subagent 1**: Courses Page & Lesson Detail Page (Grid, layout 2 cột, API integration).
+    - **Subagent 2**: Quiz Page (Glassmorphism, chấm điểm trực tiếp, API quizzes).
+    - **Subagent 3**: Review Queue Page & Flashcard Component (3D flip animation, API tracking/reviews).
+- **Phần đã sử dụng**: Toàn bộ codebase frontend được tạo ra và các component từ subagents.
+- **Phần đã chỉnh sửa**: Cập nhật lại đường dẫn API client trong các component của Subagent 1 để tuân thủ thiết kế Axios interceptor thay vì dùng `fetch` thuần. Đã fix lỗi duplicate import trong `App.tsx`.
+- **Minh chứng**: Thư mục `jlearn-frontend` đã cấu hình thành công, có thể chạy bằng `npm run dev`.
+- **File liên quan**:
+  - `jlearn-frontend/*` (Toàn bộ source code frontend mới được sinh ra)

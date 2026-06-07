@@ -101,4 +101,70 @@ public class QuizService : IQuizService
             Details = details
         };
     }
+
+    public async Task<QuizQuestionDto> CreateQuestionAsync(QuizQuestionCreateDto dto)
+    {
+        var question = new JLearn.Models.Question
+        {
+            LessonId = dto.LessonId,
+            Content = dto.Content,
+            OptionA = dto.OptionA,
+            OptionB = dto.OptionB,
+            OptionC = dto.OptionC,
+            OptionD = dto.OptionD,
+            CorrectAnswer = dto.CorrectAnswer,
+            Explanation = dto.Explanation
+        };
+        await _unitOfWork.Questions.AddAsync(question);
+        await _unitOfWork.SaveChangesAsync();
+
+        return new QuizQuestionDto
+        {
+            QuestionId = question.QuestionId,
+            Content = question.Content,
+            OptionA = question.OptionA,
+            OptionB = question.OptionB,
+            OptionC = question.OptionC,
+            OptionD = question.OptionD
+        };
+    }
+
+    public async Task<QuizQuestionDto> UpdateQuestionAsync(int questionId, QuizQuestionUpdateDto dto)
+    {
+        var question = await _unitOfWork.Questions.GetByIdAsync(questionId);
+        if (question == null) throw new KeyNotFoundException("Question not found");
+
+        question.LessonId = dto.LessonId;
+        question.Content = dto.Content;
+        question.OptionA = dto.OptionA;
+        question.OptionB = dto.OptionB;
+        question.OptionC = dto.OptionC;
+        question.OptionD = dto.OptionD;
+        question.CorrectAnswer = dto.CorrectAnswer;
+        question.Explanation = dto.Explanation;
+
+        _unitOfWork.Questions.Update(question);
+        await _unitOfWork.SaveChangesAsync();
+
+        return new QuizQuestionDto
+        {
+            QuestionId = question.QuestionId,
+            Content = question.Content,
+            OptionA = question.OptionA,
+            OptionB = question.OptionB,
+            OptionC = question.OptionC,
+            OptionD = question.OptionD
+        };
+    }
+
+    public async Task<bool> DeleteQuestionAsync(int questionId)
+    {
+        var question = await _unitOfWork.Questions.GetByIdAsync(questionId);
+        if (question == null) return false;
+
+        question.IsDeleted = true;
+        _unitOfWork.Questions.Update(question);
+        await _unitOfWork.SaveChangesAsync();
+        return true;
+    }
 }

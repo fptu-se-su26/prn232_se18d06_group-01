@@ -27,7 +27,6 @@ public class QuizzesController : ControllerBase
         return userId;
     }
 
-    // Hỗ trợ cả /api/quizzes/lessons/{lessonId} (theo baseline) và /api/quizzes/lesson/{lessonId} (theo guide)
     // [HttpGet("lessons/{lessonId:int}")]
     [HttpGet("lesson/{lessonId:int}")]
     public async Task<ActionResult<List<QuizQuestionDto>>> GetQuizByLesson(int lessonId)

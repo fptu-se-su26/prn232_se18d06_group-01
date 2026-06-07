@@ -68,4 +68,58 @@ public class CourseService : ICourseService
 
         return course;
     }
+
+    public async Task<CourseDto> CreateAsync(CourseCreateDto dto)
+    {
+        var course = new JLearn.Models.Course
+        {
+            Name = dto.Name,
+            Description = dto.Description,
+            OrderIndex = dto.OrderIndex
+        };
+        await _unitOfWork.Courses.AddAsync(course);
+        await _unitOfWork.SaveChangesAsync();
+
+        return new CourseDto
+        {
+            CourseId = course.CourseId,
+            Name = course.Name,
+            Description = course.Description,
+            OrderIndex = course.OrderIndex,
+            LessonCount = 0
+        };
+    }
+
+    public async Task<CourseDto> UpdateAsync(int courseId, CourseUpdateDto dto)
+    {
+        var course = await _unitOfWork.Courses.GetByIdAsync(courseId);
+        if (course == null) throw new KeyNotFoundException("Course not found");
+
+        course.Name = dto.Name;
+        course.Description = dto.Description;
+        course.OrderIndex = dto.OrderIndex;
+
+        _unitOfWork.Courses.Update(course);
+        await _unitOfWork.SaveChangesAsync();
+
+        return new CourseDto
+        {
+            CourseId = course.CourseId,
+            Name = course.Name,
+            Description = course.Description,
+            OrderIndex = course.OrderIndex,
+            LessonCount = course.Lessons?.Count(l => !l.IsDeleted) ?? 0
+        };
+    }
+
+    public async Task<bool> DeleteAsync(int courseId)
+    {
+        var course = await _unitOfWork.Courses.GetByIdAsync(courseId);
+        if (course == null) return false;
+
+        course.IsDeleted = true;
+        _unitOfWork.Courses.Update(course);
+        await _unitOfWork.SaveChangesAsync();
+        return true;
+    }
 }

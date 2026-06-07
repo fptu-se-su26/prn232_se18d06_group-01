@@ -58,4 +58,100 @@ public class LessonsController : ControllerBase
         var result = await _lessonService.GetGrammarsByLessonAsync(lessonId);
         return Ok(ApiResponse<List<GrammarDto>>.SuccessResponse(result));
     }
+
+    [HttpPost]
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+    public async Task<IActionResult> CreateLesson([FromBody] LessonCreateDto dto)
+    {
+        var result = await _lessonService.CreateAsync(dto);
+        return Ok(ApiResponse<LessonDto>.SuccessResponse(result));
+    }
+
+    [HttpPut("{id}")]
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateLesson(int id, [FromBody] LessonUpdateDto dto)
+    {
+        try
+        {
+            var result = await _lessonService.UpdateAsync(id, dto);
+            return Ok(ApiResponse<LessonDto>.SuccessResponse(result));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ApiResponse<object>.ErrorResponse(ex.Message, 404));
+        }
+    }
+
+    [HttpDelete("{id}")]
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteLesson(int id)
+    {
+        var result = await _lessonService.DeleteAsync(id);
+        if (!result) return NotFound(ApiResponse<object>.ErrorResponse("Lesson not found", 404));
+        return Ok(ApiResponse<bool>.SuccessResponse(true));
+    }
+
+    [HttpPost("vocabularies")]
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+    public async Task<IActionResult> CreateVocabulary([FromBody] VocabularyCreateDto dto)
+    {
+        var result = await _lessonService.CreateVocabularyAsync(dto);
+        return Ok(ApiResponse<VocabularyDto>.SuccessResponse(result));
+    }
+
+    [HttpPut("vocabularies/{id}")]
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateVocabulary(int id, [FromBody] VocabularyUpdateDto dto)
+    {
+        try
+        {
+            var result = await _lessonService.UpdateVocabularyAsync(id, dto);
+            return Ok(ApiResponse<VocabularyDto>.SuccessResponse(result));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ApiResponse<object>.ErrorResponse(ex.Message, 404));
+        }
+    }
+
+    [HttpDelete("vocabularies/{id}")]
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteVocabulary(int id)
+    {
+        var result = await _lessonService.DeleteVocabularyAsync(id);
+        if (!result) return NotFound(ApiResponse<object>.ErrorResponse("Vocabulary not found", 404));
+        return Ok(ApiResponse<bool>.SuccessResponse(true));
+    }
+
+    [HttpPost("grammars")]
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+    public async Task<IActionResult> CreateGrammar([FromBody] GrammarCreateDto dto)
+    {
+        var result = await _lessonService.CreateGrammarAsync(dto);
+        return Ok(ApiResponse<GrammarDto>.SuccessResponse(result));
+    }
+
+    [HttpPut("grammars/{id}")]
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateGrammar(int id, [FromBody] GrammarUpdateDto dto)
+    {
+        try
+        {
+            var result = await _lessonService.UpdateGrammarAsync(id, dto);
+            return Ok(ApiResponse<GrammarDto>.SuccessResponse(result));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ApiResponse<object>.ErrorResponse(ex.Message, 404));
+        }
+    }
+
+    [HttpDelete("grammars/{id}")]
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteGrammar(int id)
+    {
+        var result = await _lessonService.DeleteGrammarAsync(id);
+        if (!result) return NotFound(ApiResponse<object>.ErrorResponse("Grammar not found", 404));
+        return Ok(ApiResponse<bool>.SuccessResponse(true));
+    }
 }

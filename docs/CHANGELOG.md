@@ -8,9 +8,21 @@
 ## [Unreleased]
 
 ### Planned
-- Phase 4: Frontend React + Vite + Tailwind CSS
-- Phase 5: Flashcard 3D, Quiz UI, Dashboard
 - Phase 6: Admin CMS + Deployment
+
+---
+
+## [0.4.0] — 2026-05-22
+
+### Added — Phase 4 & 5: Frontend React (Subagent Concurrent Execution)
+- Khởi tạo dự án `jlearn-frontend` với React + Vite + TypeScript.
+- Tích hợp và cấu hình **Tailwind CSS 4** (pure CSS framework, không UI library).
+- Thiết lập `Axios` instance với interceptors để gán JWT token và tự động xử lý refresh token (`401 Unauthorized`).
+- Xây dựng `AuthContext` quản lý state người dùng.
+- Base Layout hiện đại (Sidebar + Header) với responsive design và glassmorphism.
+- **[Subagent 1]** Giao diện Danh sách Khóa học (`CoursesPage`) và Chi tiết Bài học (`LessonDetailPage`).
+- **[Subagent 2]** Giao diện Bài kiểm tra (`QuizPage`) kết nối API chấm điểm.
+- **[Subagent 3]** Giao diện Ôn tập SRS (`ReviewQueuePage`) và component thẻ lật 3D (`Flashcard`).
 
 ---
 

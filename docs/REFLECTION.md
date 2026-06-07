@@ -69,3 +69,25 @@
 **Bài học rút ra?**
 - Tính năng RollForward trong .NET rất hữu ích cho các dự án đa phiên bản khi phát triển trên môi trường cục bộ khác nhau.
 - Luôn kiểm tra các Migration và chạy `dotnet ef database update` sau khi chỉnh sửa Model.
+
+---
+
+### Nguyễn Hồ Anh Quân — Phase 4 & 5 (2026-05-22)
+
+**AI đã giúp được gì?**
+- Cấu hình chuẩn một React SPA với Vite và Tailwind CSS 4 hoàn toàn không dùng component library bên thứ ba.
+- Setup `Axios` interceptors và `AuthContext` cực kỳ chi tiết, tự động quản lý vòng đời của token và xử lý refresh token ngầm khi mã lỗi 401 xuất hiện.
+- Áp dụng chiến lược Subagent: sử dụng 3 subagents làm việc song song giúp tiết kiệm thời gian hoàn thành một lúc 3 bộ màn hình quan trọng (Courses/Lessons, Quiz, Spaced Repetition).
+- Tích hợp hiệu ứng CSS 3D lật thẻ Flashcard bằng các thuộc tính như `preserve-3d` cực kỳ bắt mắt.
+
+**Hạn chế / Vấn đề gặp phải?**
+- Subagent 1 đã sử dụng `fetch` thay vì thư viện `axios` instance được định nghĩa sẵn, nên sau đó Main Agent phải dùng code edit tool để thay thế (refactor) lại cấu trúc.
+- Xảy ra tình trạng duplicate import trong `App.tsx` khi có nhiều thành phần nối lại, nhưng đã được xử lý tự động.
+
+**Phần nào tự làm (không dùng AI)?**
+- Chỉ đạo phương hướng kiến trúc và lựa chọn dùng thuần Tailwind thay vì thư viện có sẵn (shadcn/ui).
+- Quản trị workflow tổng quát của Subagents.
+
+**Bài học rút ra?**
+- Khả năng làm việc đa luồng (multi-agent) tăng năng suất gấp 3 lần cho các dự án xây dựng Frontend.
+- Tuy nhiên, cần mô tả prompt thật chi tiết cho Subagents về việc sử dụng các file/cấu trúc có sẵn (như file api service) để tránh phải sửa lại code sau này.
