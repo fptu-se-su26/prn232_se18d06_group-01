@@ -7,11 +7,8 @@ import { ArrowLeft, CheckCircle, RefreshCw } from 'lucide-react';
 interface CustomCard {
   cardId: number;
   deckId: number;
-  kanji: string | null;
-  hira: string | null;
-  kana: string;
+  word: string;
   meaning: string;
-  romaji: string | null;
   level: number;
   nextReviewDate: string;
 }
@@ -118,10 +115,8 @@ const CustomReviewPage: React.FC = () => {
   // Ánh xạ kiểu dữ liệu sang cấu trúc mong đợi của component Flashcard
   const mappedVocabulary = {
     vocabId: currentCard.cardId,
-    kanji: currentCard.kanji || undefined,
-    hira: currentCard.hira || undefined,
-    kana: currentCard.kana,
-    romaji: currentCard.romaji || undefined,
+    kanji: currentCard.word,
+    kana: currentCard.word,
     meaning: currentCard.meaning
   };
 

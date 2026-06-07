@@ -11,22 +11,13 @@ public class CustomCard : BaseEntity
 
     public int DeckId { get; set; }
 
-    [MaxLength(50)]
-    public string? Kanji { get; set; }
-
-    [MaxLength(50)]
-    public string? Hira { get; set; }
-
     [Required]
     [MaxLength(100)]
-    public string Kana { get; set; } = string.Empty;
+    public string Word { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(200)]
     public string Meaning { get; set; } = string.Empty;
-
-    [MaxLength(100)]
-    public string? Romaji { get; set; }
 
     // SRS fields
     public int Level { get; set; } = 1;

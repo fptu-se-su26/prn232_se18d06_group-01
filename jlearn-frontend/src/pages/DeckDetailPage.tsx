@@ -6,11 +6,8 @@ import { Plus, Sparkles, Edit, Trash2, ArrowLeft, Copy, Check, Info } from 'luci
 interface CustomCard {
   cardId: number;
   deckId: number;
-  kanji: string | null;
-  hira: string | null;
-  kana: string;
+  word: string;
   meaning: string;
-  romaji: string | null;
   level: number;
   nextReviewDate: string;
 }
@@ -30,11 +27,8 @@ const DeckDetailPage: React.FC = () => {
   // Card Form Modal
   const [isCardModalOpen, setIsCardModalOpen] = useState(false);
   const [editingCard, setEditingCard] = useState<CustomCard | null>(null);
-  const [kanji, setKanji] = useState('');
-  const [hira, setHira] = useState('');
-  const [kana, setKana] = useState('');
+  const [word, setWord] = useState('');
   const [meaning, setMeaning] = useState('');
-  const [romaji, setRomaji] = useState('');
   
   // AI Import Modal
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
@@ -73,7 +67,7 @@ const DeckDetailPage: React.FC = () => {
       setGeneratedPrompt('');
       return;
     }
-    const prompt = `Hãy tạo danh sách từ vựng tiếng Nhật từ danh sách sau dưới dạng JSON chuẩn. Mỗi phần tử có cấu trúc: { "kanji": "chữ Kanji nếu có", "hira": "Hiragana hoặc Katakana tương ứng", "kana": "chữ viết chính bằng tiếng Nhật (Kanji hoặc Kana)", "meaning": "nghĩa tiếng Việt", "romaji": "romaji phát âm" }. Hãy chuyển từ viết chính và hiragana đúng theo ngữ pháp. Chỉ trả về duy nhất chuỗi JSON thô dạng mảng, không định dạng markdown, không giải thích gì thêm.
+    const prompt = `Hãy tạo danh sách từ vựng từ danh sách sau dưới dạng JSON chuẩn. Mỗi phần tử có cấu trúc: { "word": "từ tiếng Nhật hoặc từ khóa", "meaning": "nghĩa tiếng Việt tương ứng" }. Chỉ trả về duy nhất chuỗi JSON thô dạng mảng, không định dạng markdown, không giải thích gì thêm.
 Danh sách từ:
 ${inputList.trim()}`;
     setGeneratedPrompt(prompt);
@@ -107,32 +101,23 @@ ${inputList.trim()}`;
   const openCardModal = (card?: CustomCard) => {
     if (card) {
       setEditingCard(card);
-      setKanji(card.kanji || '');
-      setHira(card.hira || '');
-      setKana(card.kana);
+      setWord(card.word);
       setMeaning(card.meaning);
-      setRomaji(card.romaji || '');
     } else {
       setEditingCard(null);
-      setKanji('');
-      setHira('');
-      setKana('');
+      setWord('');
       setMeaning('');
-      setRomaji('');
     }
     setIsCardModalOpen(true);
   };
 
   const handleCardSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!kana.trim() || !meaning.trim()) return;
+    if (!word.trim() || !meaning.trim()) return;
 
     const payload = {
-      kanji: kanji.trim() || null,
-      hira: hira.trim() || null,
-      kana: kana.trim(),
-      meaning: meaning.trim(),
-      romaji: romaji.trim() || null
+      word: word.trim(),
+      meaning: meaning.trim()
     };
 
     try {
@@ -185,7 +170,7 @@ ${inputList.trim()}`;
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8 flex flex-col gap-4">
-          <Link to="/decks" className="inline-flex items-center text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline self-start">
+          <Link to="/decks" className="inline-flex items-center text-sm font-semibold text-slate-500 hover:text-indigo-600 dark:text-indigo-400 hover:underline self-start">
             <ArrowLeft className="w-4 h-4 mr-1.5" />
             Quay lại danh sách
           </Link>
@@ -223,11 +208,8 @@ ${inputList.trim()}`;
             <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-700/50">
               <thead className="bg-slate-50 dark:bg-slate-900/50">
                 <tr>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Kanji</th>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Hira</th>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Từ chính (Kana)</th>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ý nghĩa</th>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Romaji</th>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-1/3">Từ khóa (Word)</th>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-1/3">Ý nghĩa (Meaning)</th>
                   <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Cấp độ SRS</th>
                   <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Lịch ôn tập</th>
                   <th scope="col" className="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Hành động</th>
@@ -236,16 +218,13 @@ ${inputList.trim()}`;
               <tbody className="bg-white dark:bg-slate-800 divide-y divide-slate-100 dark:divide-slate-700/50">
                 {cards.map((card) => (
                   <tr key={card.cardId} className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-900 dark:text-white">{card.kanji || '-'}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-300">{card.hira || '-'}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-600 dark:text-indigo-400">{card.kana}</td>
-                    <td className="px-6 py-4 text-sm text-slate-900 dark:text-white max-w-xs truncate" title={card.meaning}>{card.meaning}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">{card.romaji || '-'}</td>
+                    <td className="px-6 py-4 text-sm font-bold text-indigo-650 dark:text-indigo-400">{card.word}</td>
+                    <td className="px-6 py-4 text-sm text-slate-900 dark:text-white max-w-md break-words" title={card.meaning}>{card.meaning}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
                         card.level === 5 ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400' :
                         card.level === 4 ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400' :
-                        card.level === 3 ? 'bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400' :
+                        card.level === 3 ? 'bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-450' :
                         'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400'
                       }`}>
                         Level {card.level}
@@ -274,7 +253,7 @@ ${inputList.trim()}`;
                 ))}
                 {cards.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="px-6 py-16 text-center text-slate-400 dark:text-slate-500 font-medium">
+                    <td colSpan={5} className="px-6 py-16 text-center text-slate-400 dark:text-slate-500 font-medium">
                       Bộ thẻ chưa có từ vựng nào. Hãy chọn "Import từ AI" hoặc "Thêm thẻ thủ công" để bắt đầu.
                     </td>
                   </tr>
@@ -299,60 +278,26 @@ ${inputList.trim()}`;
                   </h3>
                   
                   <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Chữ Hán (Kanji)</label>
-                        <input 
-                          type="text" 
-                          placeholder="Ví dụ: 日本"
-                          value={kanji}
-                          onChange={(e) => setKanji(e.target.value)}
-                          className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-500/50 text-slate-950 dark:text-white transition-all text-sm"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Phát âm (Hira/Kata)</label>
-                        <input 
-                          type="text" 
-                          placeholder="Ví dụ: にほん"
-                          value={hira}
-                          onChange={(e) => setHira(e.target.value)}
-                          className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-500/50 text-slate-950 dark:text-white transition-all text-sm"
-                        />
-                      </div>
-                    </div>
-
                     <div>
-                      <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Từ chính (Kana/Kanji) *</label>
+                      <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Từ khóa (Word) *</label>
                       <input 
                         type="text" 
                         required
-                        placeholder="Từ dùng hiển thị chính. Ví dụ: 日本"
-                        value={kana}
-                        onChange={(e) => setKana(e.target.value)}
+                        placeholder="Nhập từ chính, ví dụ: 勉強する hoặc 猫"
+                        value={word}
+                        onChange={(e) => setWord(e.target.value)}
                         className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-500/50 text-slate-950 dark:text-white transition-all text-sm"
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Ý nghĩa tiếng Việt *</label>
+                      <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Ý nghĩa (Meaning) *</label>
                       <input 
                         type="text" 
                         required
-                        placeholder="Ví dụ: Nước Nhật, Nhật Bản"
+                        placeholder="Nhập ý nghĩa, ví dụ: học tập hoặc con mèo"
                         value={meaning}
                         onChange={(e) => setMeaning(e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-500/50 text-slate-950 dark:text-white transition-all text-sm"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Romaji</label>
-                      <input 
-                        type="text" 
-                        placeholder="Ví dụ: nihon"
-                        value={romaji}
-                        onChange={(e) => setRomaji(e.target.value)}
                         className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-500/50 text-slate-950 dark:text-white transition-all text-sm"
                       />
                     </div>
@@ -380,7 +325,7 @@ ${inputList.trim()}`;
         </div>
       )}
 
-      {/* Modal Import từ AI (Quy trình bán tự động) */}
+      {/* Modal Import từ AI */}
       {isAiModalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
           <div className="flex items-center justify-center min-h-screen p-4 text-center">
@@ -405,11 +350,11 @@ ${inputList.trim()}`;
                     <div>
                       <span className="inline-block bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 text-xs font-bold px-2 py-0.5 rounded mb-1">BƯỚC 1</span>
                       <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1">
-                        Nhập danh sách từ vựng của bạn (mỗi từ trên một dòng dưới dạng `Từ : Ý nghĩa`):
+                        Nhập danh sách của bạn (ví dụ copy từ Quizlet hoặc định dạng `Từ : Ý nghĩa`):
                       </label>
                       <textarea
                         rows={3}
-                        placeholder="勉強する : học tập&#10;猫 : con mèo&#10;食べる : ăn"
+                        placeholder="勉強する : học tập&#10;猫 : con mèo"
                         value={inputList}
                         onChange={(e) => setInputList(e.target.value)}
                         className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-500/50 text-slate-950 dark:text-white transition-all text-sm resize-none font-mono"
@@ -432,14 +377,14 @@ ${inputList.trim()}`;
                               </>
                             ) : (
                               <>
-                                <Copy className="w-3.5 h-3.5 mr-1" /> Copy Prompt cho AI
+                                <Copy className="w-3.5 h-3.5 mr-1" /> Copy Prompt gửi AI
                               </>
                             )}
                           </button>
                         </div>
                         <p className="text-xs text-slate-500 dark:text-slate-400 mb-2 leading-relaxed flex items-start">
                           <Info className="w-4 h-4 mr-1.5 flex-shrink-0 text-slate-400" />
-                          Copy đoạn prompt bên dưới rồi dán vào ChatGPT/Gemini/Claude để AI chuyển dịch các trường Kanji, Hira, Romaji chuẩn nhất.
+                          Copy đoạn prompt và dán vào ChatGPT/Gemini để sinh chuỗi JSON rút gọn gồm Word và Meaning.
                         </p>
                         <pre className="text-xs text-slate-600 dark:text-slate-350 overflow-y-auto max-h-24 whitespace-pre-wrap font-mono leading-relaxed select-all">
                           {generatedPrompt}
@@ -451,11 +396,11 @@ ${inputList.trim()}`;
                     <div>
                       <span className="inline-block bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 text-xs font-bold px-2 py-0.5 rounded mb-1">BƯỚC 3</span>
                       <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1">
-                        Dán chuỗi JSON nhận được từ AI vào đây để import vào hệ thống:
+                        Dán kết quả JSON nhận được từ AI vào đây để hoàn tất:
                       </label>
                       <textarea
                         rows={4}
-                        placeholder='[&#10;  { "kanji": "猫", "hira": "ねこ", "kana": "猫", "meaning": "con mèo", "romaji": "neko" }&#10;]'
+                        placeholder='[&#10;  { "word": "勉強する", "meaning": "học tập" },&#10;  { "word": "猫", "meaning": "con mèo" }&#10;]'
                         value={rawJsonInput}
                         onChange={(e) => setRawJsonInput(e.target.value)}
                         className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-500/50 text-slate-950 dark:text-white transition-all text-sm resize-none font-mono"

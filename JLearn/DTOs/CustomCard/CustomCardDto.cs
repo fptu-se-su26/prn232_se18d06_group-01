@@ -4,11 +4,8 @@ public class CustomCardDto
 {
     public int CardId { get; set; }
     public int DeckId { get; set; }
-    public string? Kanji { get; set; }
-    public string? Hira { get; set; }
-    public string Kana { get; set; } = string.Empty;
+    public string Word { get; set; } = string.Empty;
     public string Meaning { get; set; } = string.Empty;
-    public string? Romaji { get; set; }
 
     // SRS properties
     public int Level { get; set; }

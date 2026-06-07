@@ -95,11 +95,8 @@ public class CustomDeckService : ICustomDeckService
             {
                 CardId = c.CardId,
                 DeckId = c.DeckId,
-                Kanji = c.Kanji,
-                Hira = c.Hira,
-                Kana = c.Kana,
+                Word = c.Word,
                 Meaning = c.Meaning,
-                Romaji = c.Romaji,
                 Level = c.Level,
                 NextReviewDate = c.NextReviewDate,
                 EaseFactor = c.EaseFactor,
@@ -118,11 +115,8 @@ public class CustomDeckService : ICustomDeckService
         var card = new CustomCard
         {
             DeckId = deckId,
-            Kanji = dto.Kanji?.Trim(),
-            Hira = dto.Hira?.Trim(),
-            Kana = dto.Kana.Trim(),
+            Word = dto.Word.Trim(),
             Meaning = dto.Meaning.Trim(),
-            Romaji = dto.Romaji?.Trim(),
             Level = 1,
             NextReviewDate = DateTime.UtcNow,
             EaseFactor = 2.5,
@@ -137,11 +131,8 @@ public class CustomDeckService : ICustomDeckService
         {
             CardId = card.CardId,
             DeckId = card.DeckId,
-            Kanji = card.Kanji,
-            Hira = card.Hira,
-            Kana = card.Kana,
+            Word = card.Word,
             Meaning = card.Meaning,
-            Romaji = card.Romaji,
             Level = card.Level,
             NextReviewDate = card.NextReviewDate,
             EaseFactor = card.EaseFactor,
@@ -160,11 +151,8 @@ public class CustomDeckService : ICustomDeckService
         if (card == null || card.DeckId != deckId)
             throw new KeyNotFoundException("Không tìm thấy thẻ cần cập nhật.");
 
-        card.Kanji = dto.Kanji?.Trim();
-        card.Hira = dto.Hira?.Trim();
-        card.Kana = dto.Kana.Trim();
+        card.Word = dto.Word.Trim();
         card.Meaning = dto.Meaning.Trim();
-        card.Romaji = dto.Romaji?.Trim();
 
         _unitOfWork.CustomCards.Update(card);
         await _unitOfWork.SaveChangesAsync();
@@ -173,11 +161,8 @@ public class CustomDeckService : ICustomDeckService
         {
             CardId = card.CardId,
             DeckId = card.DeckId,
-            Kanji = card.Kanji,
-            Hira = card.Hira,
-            Kana = card.Kana,
+            Word = card.Word,
             Meaning = card.Meaning,
-            Romaji = card.Romaji,
             Level = card.Level,
             NextReviewDate = card.NextReviewDate,
             EaseFactor = card.EaseFactor,
@@ -219,17 +204,14 @@ public class CustomDeckService : ICustomDeckService
 
             foreach (var item in items)
             {
-                if (string.IsNullOrWhiteSpace(item.Kana) || string.IsNullOrWhiteSpace(item.Meaning))
+                if (string.IsNullOrWhiteSpace(item.Word) || string.IsNullOrWhiteSpace(item.Meaning))
                     continue;
 
                 var card = new CustomCard
                 {
                     DeckId = deckId,
-                    Kanji = item.Kanji?.Trim(),
-                    Hira = item.Hira?.Trim(),
-                    Kana = item.Kana.Trim(),
+                    Word = item.Word.Trim(),
                     Meaning = item.Meaning.Trim(),
-                    Romaji = item.Romaji?.Trim(),
                     Level = 1,
                     NextReviewDate = DateTime.UtcNow,
                     EaseFactor = 2.5,
@@ -261,11 +243,8 @@ public class CustomDeckService : ICustomDeckService
             {
                 CardId = c.CardId,
                 DeckId = c.DeckId,
-                Kanji = c.Kanji,
-                Hira = c.Hira,
-                Kana = c.Kana,
+                Word = c.Word,
                 Meaning = c.Meaning,
-                Romaji = c.Romaji,
                 Level = c.Level,
                 NextReviewDate = c.NextReviewDate,
                 EaseFactor = c.EaseFactor,
@@ -324,11 +303,8 @@ public class CustomDeckService : ICustomDeckService
         {
             CardId = card.CardId,
             DeckId = card.DeckId,
-            Kanji = card.Kanji,
-            Hira = card.Hira,
-            Kana = card.Kana,
+            Word = card.Word,
             Meaning = card.Meaning,
-            Romaji = card.Romaji,
             Level = card.Level,
             NextReviewDate = card.NextReviewDate,
             EaseFactor = card.EaseFactor,
