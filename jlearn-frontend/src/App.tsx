@@ -4,14 +4,10 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { MainLayout } from './layouts/MainLayout';
 
 import { Login } from './pages/Login';
-import { Dashboard } from './pages/Dashboard';
-import CoursesPage from './pages/CoursesPage';
-import LessonDetailPage from './pages/LessonDetailPage';
-import ReviewQueuePage from './pages/ReviewQueuePage';
-import { QuizPage } from './pages/QuizPage';
 import CustomDecksPage from './pages/CustomDecksPage';
 import DeckDetailPage from './pages/DeckDetailPage';
 import CustomReviewPage from './pages/CustomReviewPage';
+import CustomPreviewDeckPage from './pages/CustomPreviewDeckPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -30,17 +26,14 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/" element={<Navigate to="/decks" replace />} />
       
       {/* User Routes */}
       <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/courses" element={<CoursesPage />} />
-        <Route path="/courses/:id" element={<LessonDetailPage />} />
-        <Route path="/reviews" element={<ReviewQueuePage />} />
-        <Route path="/quizzes/lesson/:lessonId" element={<QuizPage />} />
+        <Route path="/dashboard" element={<Navigate to="/decks" replace />} />
         <Route path="/decks" element={<CustomDecksPage />} />
         <Route path="/decks/:id" element={<DeckDetailPage />} />
+        <Route path="/decks/:id/preview" element={<CustomPreviewDeckPage />} />
         <Route path="/decks/:id/review" element={<CustomReviewPage />} />
       </Route>
 

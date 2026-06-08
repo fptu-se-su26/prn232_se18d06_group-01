@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../services/api';
-import { Plus, Sparkles, Edit, Trash2, ArrowLeft, Copy, Check, Info } from 'lucide-react';
+import { Plus, Sparkles, Edit, Trash2, ArrowLeft, Copy, Check, Info, BookOpen } from 'lucide-react';
 
 interface CustomCard {
   cardId: number;
@@ -67,8 +67,14 @@ const DeckDetailPage: React.FC = () => {
       setGeneratedPrompt('');
       return;
     }
-    const prompt = `Hãy tạo danh sách từ vựng từ danh sách sau dưới dạng JSON chuẩn. Mỗi phần tử có cấu trúc: { "word": "từ tiếng Nhật hoặc từ khóa", "meaning": "nghĩa tiếng Việt tương ứng" }. Chỉ trả về duy nhất chuỗi JSON thô dạng mảng, không định dạng markdown, không giải thích gì thêm.
-Danh sách từ:
+    const prompt = `Hãy tạo danh sách thẻ học từ danh sách sau dưới dạng JSON chuẩn. Mỗi phần tử có cấu trúc:
+{
+  "word": "từ vựng, khái niệm hoặc câu hỏi (LƯU Ý: Nếu là câu hỏi trắc nghiệm hoặc câu hỏi có các lựa chọn phương án A, B, C, D... thì bắt buộc phải giữ lại toàn bộ câu hỏi kèm danh sách tất cả các phương án lựa chọn đó ở đây, sử dụng dấu xuống dòng \\n để phân cách)",
+  "meaning": "nghĩa của từ hoặc phương án đáp án đúng tương ứng"
+}.
+Chỉ trả về duy nhất chuỗi JSON thô dạng mảng, không bọc trong markdown (không có \`\`\`json), không giải thích gì thêm.
+
+Danh sách nguồn:
 ${inputList.trim()}`;
     setGeneratedPrompt(prompt);
   }, [inputList]);
@@ -184,6 +190,17 @@ ${inputList.trim()}`;
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
+              <Link
+                to={`/decks/${id}/preview`}
+                className={`flex items-center justify-center px-5 py-3 rounded-xl font-bold transition-all duration-300 shadow-md active:scale-95 ${
+                  cards.length === 0
+                    ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed pointer-events-none shadow-none border border-slate-200 dark:border-slate-700'
+                    : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/10'
+                }`}
+              >
+                <BookOpen className="w-5 h-5 mr-2" />
+                Học tự do
+              </Link>
               <button
                 onClick={() => setIsAiModalOpen(true)}
                 className="flex items-center justify-center bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white px-5 py-3 rounded-xl font-bold transition-all duration-300 shadow-md hover:shadow-indigo-500/10 active:scale-95"

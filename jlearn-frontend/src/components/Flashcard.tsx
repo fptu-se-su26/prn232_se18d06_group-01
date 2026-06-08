@@ -17,6 +17,11 @@ interface FlashcardProps {
 }
 
 const Flashcard: React.FC<FlashcardProps> = ({ vocabulary, isFlipped, onFlip }) => {
+  const wordText = vocabulary.kanji || vocabulary.kana || '';
+  const wordLength = wordText.length;
+  const meaningLength = (vocabulary.meaning || '').length;
+  const hasDistinctReading = vocabulary.kanji !== vocabulary.kana && (vocabulary.kana || vocabulary.hira || vocabulary.romaji);
+
   return (
     <div 
       className="w-full max-w-md h-96 cursor-pointer mx-auto group perspective"
@@ -32,13 +37,20 @@ const Flashcard: React.FC<FlashcardProps> = ({ vocabulary, isFlipped, onFlip }) 
       >
         {/* Front Face */}
         <div 
-          className="absolute inset-0 w-full h-full bg-white dark:bg-slate-800 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex flex-col items-center justify-center p-8 border border-slate-100 dark:border-slate-700"
+          className="absolute inset-0 w-full h-full bg-white dark:bg-slate-800 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex flex-col items-center justify-between p-8 border border-slate-100 dark:border-slate-700"
           style={{ backfaceVisibility: 'hidden' }}
         >
-          <h2 className="text-6xl font-extrabold text-slate-800 dark:text-slate-100 mb-6 tracking-tight">
-            {vocabulary.kanji || vocabulary.kana}
-          </h2>
-          <p className="text-slate-400 dark:text-slate-500 font-medium animate-pulse">
+          <div className="flex-1 flex items-center justify-center w-full overflow-y-auto pr-1">
+            <h2 className={`font-extrabold text-slate-800 dark:text-slate-100 text-center tracking-tight leading-snug ${
+              wordLength > 100 ? 'text-base sm:text-lg' :
+              wordLength > 50 ? 'text-xl sm:text-2xl' :
+              wordLength > 20 ? 'text-3xl sm:text-4xl' :
+              'text-5xl sm:text-6xl'
+            }`}>
+              {wordText}
+            </h2>
+          </div>
+          <p className="text-slate-400 dark:text-slate-500 font-medium animate-pulse mt-4 text-center">
             Tap to reveal meaning
           </p>
         </div>
@@ -48,23 +60,31 @@ const Flashcard: React.FC<FlashcardProps> = ({ vocabulary, isFlipped, onFlip }) 
           className="absolute inset-0 w-full h-full bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-slate-800 dark:to-slate-900 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex flex-col items-center justify-center p-8 border border-indigo-100 dark:border-slate-700"
           style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
         >
-          <div className="flex flex-col items-center justify-center h-full w-full space-y-6">
-            <div className="text-center">
-              <span className="px-4 py-1.5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-sm font-bold uppercase tracking-wider mb-4 inline-block">
-                Reading
-              </span>
-              <p className="text-3xl font-bold text-slate-800 dark:text-slate-100">
-                {vocabulary.kana || vocabulary.hira || vocabulary.romaji}
-              </p>
-            </div>
+          <div className="flex flex-col items-center justify-center h-full w-full space-y-4 overflow-y-auto pr-1">
+            {hasDistinctReading && (
+              <>
+                <div className="text-center">
+                  <span className="px-4 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-xs font-bold uppercase tracking-wider mb-2 inline-block">
+                    Reading
+                  </span>
+                  <p className="text-2xl font-bold text-slate-800 dark:text-slate-100 leading-snug">
+                    {vocabulary.kana || vocabulary.hira || vocabulary.romaji}
+                  </p>
+                </div>
+                
+                <div className="w-12 h-0.5 bg-indigo-200 dark:bg-slate-700 rounded-full" />
+              </>
+            )}
             
-            <div className="w-16 h-1 bg-indigo-200 dark:bg-slate-700 rounded-full" />
-            
             <div className="text-center">
-              <span className="px-4 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 text-sm font-bold uppercase tracking-wider mb-4 inline-block">
+              <span className="px-4 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider mb-3 inline-block">
                 Meaning
               </span>
-              <p className="text-2xl font-semibold text-slate-700 dark:text-slate-200">
+              <p className={`font-semibold text-slate-700 dark:text-slate-200 leading-relaxed ${
+                meaningLength > 100 ? 'text-sm sm:text-base' :
+                meaningLength > 50 ? 'text-base sm:text-lg' :
+                'text-xl sm:text-2xl'
+              }`}>
                 {vocabulary.meaning}
               </p>
             </div>

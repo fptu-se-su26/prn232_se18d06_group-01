@@ -25,10 +25,6 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 // ===== Services =====
 builder.Services.AddScoped<JwtHelper>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<ICourseService, CourseService>();
-builder.Services.AddScoped<ILessonService, LessonService>();
-builder.Services.AddScoped<IQuizService, QuizService>();
-builder.Services.AddScoped<ISpacedRepetitionService, SpacedRepetitionService>();
 builder.Services.AddScoped<ICustomDeckService, CustomDeckService>();
 
 // ===== Caching =====

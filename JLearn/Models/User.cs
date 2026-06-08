@@ -23,7 +23,5 @@ public class User : BaseEntity
     public DateTime? RefreshTokenExpiryTime { get; set; }
 
     // Navigation properties
-    public virtual ICollection<UserVocabulary> UserVocabularies { get; set; } = new List<UserVocabulary>();
-    public virtual ICollection<QuizResult> QuizResults { get; set; } = new List<QuizResult>();
     public virtual ICollection<CustomDeck> CustomDecks { get; set; } = new List<CustomDeck>();
 }

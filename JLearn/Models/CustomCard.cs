@@ -12,11 +12,11 @@ public class CustomCard : BaseEntity
     public int DeckId { get; set; }
 
     [Required]
-    [MaxLength(100)]
+    [MaxLength(1000)]
     public string Word { get; set; } = string.Empty;
 
     [Required]
-    [MaxLength(200)]
+    [MaxLength(1000)]
     public string Meaning { get; set; } = string.Empty;
 
     // SRS fields

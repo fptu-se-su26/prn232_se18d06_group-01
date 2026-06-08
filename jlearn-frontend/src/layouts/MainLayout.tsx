@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LogOut, BookOpen, Layers, Activity, User as UserIcon, BookMarked } from 'lucide-react';
+import { LogOut, User as UserIcon, BookMarked } from 'lucide-react';
 import clsx from 'clsx';
 
 export const MainLayout: React.FC = () => {
@@ -21,9 +21,6 @@ export const MainLayout: React.FC = () => {
         </div>
 
         <nav className="flex-1 p-4 flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto">
-          <NavItem to="/dashboard" icon={<Activity size={20} />} label="Dashboard" />
-          <NavItem to="/courses" icon={<BookOpen size={20} />} label="Khóa học" />
-          <NavItem to="/reviews" icon={<Layers size={20} />} label="Ôn tập SRS" />
           <NavItem to="/decks" icon={<BookMarked size={20} />} label="Thẻ cá nhân" />
         </nav>
 
