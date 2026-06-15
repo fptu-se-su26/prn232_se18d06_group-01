@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { MainLayout } from './layouts/MainLayout';
 
 import { Login } from './pages/Login';
+import Dashboard from './pages/Dashboard';
 import CustomDecksPage from './pages/CustomDecksPage';
 import DeckDetailPage from './pages/DeckDetailPage';
 import CustomPreviewDeckPage from './pages/CustomPreviewDeckPage';
@@ -19,11 +20,11 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route path="/" element={<Navigate to="/decks" replace />} />
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
       
       {/* User Routes */}
       <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-        <Route path="/dashboard" element={<Navigate to="/decks" replace />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/decks" element={<CustomDecksPage />} />
         <Route path="/decks/:id" element={<DeckDetailPage />} />
         <Route path="/decks/:id/preview" element={<CustomPreviewDeckPage />} />
