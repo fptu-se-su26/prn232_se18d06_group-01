@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { Plus, Sparkles, Edit, Trash2, ArrowLeft, Copy, Check, Info, BookOpen, Globe, Lock, Settings, FolderHeart } from 'lucide-react';
+import { Plus, Sparkles, Trash2, ArrowLeft, Check, Info, BookOpen, Globe, Lock, Settings, FolderHeart } from 'lucide-react';
 
 interface CustomCard {
   cardId: number;

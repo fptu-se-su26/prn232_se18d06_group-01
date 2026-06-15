@@ -19,6 +19,7 @@ services:
       context: ./JLearn
       dockerfile: Dockerfile
     container_name: jlearn-backend
+    restart: on-failure # Tự động restart nếu DB chưa khởi động kịp
     ports:
       - "5225:5000" # Map cổng 5225 trên host vào cổng 5000 của container để giữ nguyên API URL cho Frontend
     environment:

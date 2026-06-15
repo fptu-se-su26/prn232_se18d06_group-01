@@ -6,11 +6,32 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace JLearn.Migrations
 {
     /// <inheritdoc />
-    public partial class AddCustomDecksAndCards : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    UserId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Role = table.Column<int>(type: "int", nullable: false),
+                    RefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RefreshTokenExpiryTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.UserId);
+                });
+
             migrationBuilder.CreateTable(
                 name: "CustomDecks",
                 columns: table => new
@@ -20,6 +41,7 @@ namespace JLearn.Migrations
                     UserId = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    IsPublic = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
@@ -42,16 +64,8 @@ namespace JLearn.Migrations
                     CardId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     DeckId = table.Column<int>(type: "int", nullable: false),
-                    Kanji = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    Hira = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    Kana = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Meaning = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Romaji = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Level = table.Column<int>(type: "int", nullable: false),
-                    NextReviewDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EaseFactor = table.Column<double>(type: "float", nullable: false),
-                    Repetitions = table.Column<int>(type: "int", nullable: false),
-                    IntervalDays = table.Column<int>(type: "int", nullable: false),
+                    Word = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    Meaning = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
@@ -76,6 +90,12 @@ namespace JLearn.Migrations
                 name: "IX_CustomDecks_UserId",
                 table: "CustomDecks",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Email",
+                table: "Users",
+                column: "Email",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -86,6 +106,9 @@ namespace JLearn.Migrations
 
             migrationBuilder.DropTable(
                 name: "CustomDecks");
+
+            migrationBuilder.DropTable(
+                name: "Users");
         }
     }
 }

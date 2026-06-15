@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JLearn.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260608164743_AddIsPublicToCustomDeck")]
-    partial class AddIsPublicToCustomDeck
+    [Migration("20260615144327_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -39,28 +39,13 @@ namespace JLearn.Migrations
                     b.Property<int>("DeckId")
                         .HasColumnType("int");
 
-                    b.Property<double>("EaseFactor")
-                        .HasColumnType("float");
-
-                    b.Property<int>("IntervalDays")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
-
-                    b.Property<int>("Level")
-                        .HasColumnType("int");
 
                     b.Property<string>("Meaning")
                         .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
-
-                    b.Property<DateTime>("NextReviewDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Repetitions")
-                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");

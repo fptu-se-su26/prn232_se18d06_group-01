@@ -113,6 +113,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await context.Database.MigrateAsync(); // Tự động tạo DB và bảng nếu chưa có
     await DbSeeder.SeedAsync(context);
 }
 

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { BookOpen, Plus, Trash2, GraduationCap, Globe, Lock, Users } from 'lucide-react';
+import { BookOpen, Plus, Trash2, Globe, Lock, Users } from 'lucide-react';
 
 interface CustomDeck {
   deckId: number;
