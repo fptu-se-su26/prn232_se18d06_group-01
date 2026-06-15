@@ -10,4 +10,6 @@ public class CustomDeckCreateDto
 
     [MaxLength(500, ErrorMessage = "Mô tả không được dài quá 500 ký tự")]
     public string? Description { get; set; }
+
+    public bool IsPublic { get; set; }
 }

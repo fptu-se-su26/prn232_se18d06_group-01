@@ -8,5 +8,6 @@ public class CustomDeckDto
     public string? Description { get; set; }
     public DateTime CreatedAt { get; set; }
     public int TotalCards { get; set; }
-    public int DueReviewCount { get; set; }
+
+    public bool IsPublic { get; set; }
 }
