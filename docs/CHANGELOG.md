@@ -5,10 +5,21 @@
 
 ---
 
-## [Unreleased]
+## [1.0.0] — 2026-06-15
 
-### Planned
-- Phase 6: Admin CMS + Deployment
+### Added — Phase 6 & Spaced Repetition Pivot
+- Triển khai toàn bộ hệ thống **Custom Decks (Bộ thẻ tự chọn)** và **Custom Cards (Thẻ từ)**: Cho phép người dùng tự tạo bộ thẻ học và thẻ từ vựng của riêng mình thay vì đi theo lộ trình bài học cố định.
+- Tích hợp tính năng **AI Import**: Cho phép người dùng dán hoặc nhập chuỗi dữ liệu JSON chứa danh sách từ vựng và tự động chuyển đổi thành các Custom Card.
+- Triển khai giao diện **3D Flashcard** hỗ trợ ôn tập thẻ lật mượt mà trên UI.
+- Đồng bộ thuật toán **Spaced Repetition (SM-2)** vào luồng ôn tập Custom Decks: Người dùng có thể đánh giá mức độ nhớ từ 1-5 và hệ thống tự động tính lịch ôn tập tiếp theo (`NextReviewDate`, `EaseFactor`, `Repetitions`, `IntervalDays`).
+- Tạo trang xem trước bộ thẻ (`CustomPreviewDeckPage.tsx`) cho phép xem danh sách thẻ trước khi học.
+- Khởi tạo tài khoản Admin mặc định thứ hai (`admin@test.com` / `123`).
+
+### Changed & Cleaned Up
+- Loại bỏ toàn bộ các thực thể, API controller, service và DTOs liên quan đến `Courses`, `Lessons`, `Vocabularies`, `Grammars`, `QuizResults` để tối ưu hóa dự án, tập trung 100% vào tính năng Custom Decks SRS.
+- Cập nhật Database Context (`AppDbContext`), Unit of Work, và Seed Data tương thích hoàn toàn với cấu trúc Custom Decks.
+- Thực hiện kiểm toán dự án và tạo tài liệu kiểm toán chi tiết tại [PROJECT_AUDIT.md](file:///c:/Users/anhqu/source/repos/prn232_se18d06_group-01/docs/PROJECT_AUDIT.md).
+
 
 ---
 

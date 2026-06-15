@@ -91,3 +91,27 @@ Mỗi entry sử dụng format sau:
 - **Minh chứng**: Thư mục `jlearn-frontend` đã cấu hình thành công, có thể chạy bằng `npm run dev`.
 - **File liên quan**:
   - `jlearn-frontend/*` (Toàn bộ source code frontend mới được sinh ra)
+
+### 2026-06-15 — Hoàn thành Phase 6 & SRS Custom Decks Pivot, Dọn dẹp Nhánh & Kiểm toán Dự án
+
+- **Người thực hiện**: Nguyễn Hồ Anh Quân
+- **Công cụ AI**: Gemini (Antigravity Agent)
+- **Prompt**:
+  > 1. Kiểm tra dự án này xem đã có fe chưa
+  > 2. origin/feature/spaced-repetition mergre cái này vào các nhánh khác luôn đi và dọn dẹp , giờ tất cả các nhánh sẽ như nhánh trên
+  > 3. làm 1 file audit lại dự án cho tôi
+- **Kết quả AI gợi ý**:
+  - Phát hiện và kiểm tra cấu trúc front-end tồn tại trên nhánh remote `feature/spaced-repetition`.
+  - Thực hiện đồng bộ hóa toàn bộ nhánh `main` và `develop` bằng cách hard reset về commit mới nhất từ `spaced-repetition` (`8a82790`) và push lên Git remote server.
+  - Dọn dẹp (xóa) 5 nhánh remote cũ lỗi thời (`docs/setup-project-docs`, `feature/admin-cms`, `feature/frontend-base`, `feature/quiz`, `feature/spaced-repetition`).
+  - Viết tài liệu báo cáo kiểm toán chi tiết `docs/PROJECT_AUDIT.md` ghi nhận toàn bộ cấu trúc hệ thống backend/frontend, cơ chế thuật toán Spaced Repetition (SM-2) và các cảnh báo nợ kỹ thuật (Technical Debt).
+  - Cập nhật tài liệu `docs/CHANGELOG.md` và `docs/AI_AUDIT_LOG.md` cho phiên làm việc hiện tại.
+- **Phần đã sử dụng**: Toàn bộ quy trình gộp nhánh, dọn dẹp Git, và nội dung báo cáo kiểm toán.
+- **Phần đã chỉnh sửa**: Không có.
+- **Minh chứng**:
+  - Trạng thái Git gọn gàng chỉ còn nhánh `main` và `develop` đồng bộ với commit `8a82790`.
+  - File tài liệu kiểm toán [PROJECT_AUDIT.md](file:///c:/Users/anhqu/source/repos/prn232_se18d06_group-01/docs/PROJECT_AUDIT.md).
+- **File liên quan**:
+  - `docs/PROJECT_AUDIT.md`
+  - `docs/CHANGELOG.md`
+  - `docs/AI_AUDIT_LOG.md`
