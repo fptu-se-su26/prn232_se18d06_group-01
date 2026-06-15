@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # 1. Database - SQL Server 2022
+  jlearn-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: jlearn-db
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "JLearn@2024!"
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+
+  # 2. Backend - ASP.NET Core Web API
+  jlearn-backend:
+    build:
+      context: ./JLearn
+      dockerfile: Dockerfile
+    container_name: jlearn-backend
+    ports:
+      - "5225:5000" # Map cổng 5225 trên host vào cổng 5000 của container để giữ nguyên API URL cho Frontend
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__DefaultConnection: "Server=jlearn-db,1433;Database=JLearnDb;User Id=sa;Password=JLearn@2024!;TrustServerCertificate=true;"
+    depends_on:
+      - jlearn-db
+
+  # 3. Frontend - React App (Vite + Nginx)
+  jlearn-frontend:
+    build:
+      context: ./jlearn-frontend
+      dockerfile: Dockerfile
+    container_name: jlearn-frontend
+    ports:
+      - "80:80" # Chạy frontend tại http://localhost
+    depends_on:
+      - jlearn-backend
+
+volumes:
+  mssql-data:
