@@ -7,18 +7,19 @@
 
 ## [1.0.0] — 2026-06-15
 
-### Added — Phase 6 & Spaced Repetition Pivot
+### Added — Phase 6, Public Decks & Clone Functionality
 - Triển khai toàn bộ hệ thống **Custom Decks (Bộ thẻ tự chọn)** và **Custom Cards (Thẻ từ)**: Cho phép người dùng tự tạo bộ thẻ học và thẻ từ vựng của riêng mình thay vì đi theo lộ trình bài học cố định.
-- Tích hợp tính năng **AI Import**: Cho phép người dùng dán hoặc nhập chuỗi dữ liệu JSON chứa danh sách từ vựng và tự động chuyển đổi thành các Custom Card.
-- Triển khai giao diện **3D Flashcard** hỗ trợ ôn tập thẻ lật mượt mà trên UI.
-- Đồng bộ thuật toán **Spaced Repetition (SM-2)** vào luồng ôn tập Custom Decks: Người dùng có thể đánh giá mức độ nhớ từ 1-5 và hệ thống tự động tính lịch ôn tập tiếp theo (`NextReviewDate`, `EaseFactor`, `Repetitions`, `IntervalDays`).
-- Tạo trang xem trước bộ thẻ (`CustomPreviewDeckPage.tsx`) cho phép xem danh sách thẻ trước khi học.
+- Tích hợp tính năng **Public Decks**: Người dùng có thể đánh dấu bộ thẻ của mình là công khai (`IsPublic = true`).
+- Tích hợp tính năng **Clone Decks**: Cho phép người dùng sao chép (clone) bộ thẻ công khai của người khác thành bộ thẻ cá nhân của mình để tự học và chỉnh sửa.
+- Tích hợp tính năng **CSV Import**: Nâng cấp phương thức import cho phép dán hoặc nhập dữ liệu dạng CSV tiêu chuẩn (hỗ trợ dấu phẩy hoặc nháy kép) để nhập thẻ hàng loạt.
+- Xây dựng giao diện **Học tự do (Free Study)** chuyên nghiệp với component **3D Flashcard** hỗ trợ lật thẻ bằng nút hoặc phím tắt (`Space` để lật, `←/A` thẻ trước, `→/D` thẻ sau).
 - Khởi tạo tài khoản Admin mặc định thứ hai (`admin@test.com` / `123`).
 
-### Changed & Cleaned Up
-- Loại bỏ toàn bộ các thực thể, API controller, service và DTOs liên quan đến `Courses`, `Lessons`, `Vocabularies`, `Grammars`, `QuizResults` để tối ưu hóa dự án, tập trung 100% vào tính năng Custom Decks SRS.
-- Cập nhật Database Context (`AppDbContext`), Unit of Work, và Seed Data tương thích hoàn toàn với cấu trúc Custom Decks.
-- Thực hiện kiểm toán dự án và tạo tài liệu kiểm toán chi tiết tại [PROJECT_AUDIT.md](file:///c:/Users/anhqu/source/repos/prn232_se18d06_group-01/docs/PROJECT_AUDIT.md).
+### Changed, Cleaned Up & Removed SM-2 Spaced Repetition
+- **Loại bỏ hoàn toàn thuật toán Spaced Repetition (SM-2)**: Gỡ bỏ toàn bộ các trường `EaseFactor`, `Repetitions`, `IntervalDays`, `NextReviewDate` khỏi thực thể `CustomCard`, DTOs và cơ sở dữ liệu (qua migration `RemoveSrsFields`).
+- Loại bỏ toàn bộ các thực thể, API controller, service và DTOs liên quan đến `Courses`, `Lessons`, `Vocabularies`, `Grammars`, `QuizResults` để tối ưu hóa dự án, tập trung 100% vào tính năng Custom Decks học tự do.
+- Dọn dẹp toàn bộ file frontend không còn sử dụng (như các trang Admin cũ, QuizPage, ReviewQueuePage, CustomReviewPage) để loại bỏ hoàn toàn code chết (dead code).
+- Thực hiện kiểm toán dự án và cập nhật tài liệu báo cáo kiểm toán chi tiết tại [PROJECT_AUDIT.md](file:///c:/Users/anhqu/source/repos/prn232_se18d06_group-01/docs/PROJECT_AUDIT.md).
 
 
 ---
