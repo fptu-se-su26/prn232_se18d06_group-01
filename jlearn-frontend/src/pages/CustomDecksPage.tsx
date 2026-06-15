@@ -220,6 +220,7 @@ const CustomDecksPage: React.FC = () => {
                       </button>
                     )}
                   </div>
+                </div>
                 <div className="border-t border-slate-100 dark:border-slate-700/50 pt-4 flex items-center justify-between">
                   <div className="flex space-x-4">
                     <div className="text-center">
