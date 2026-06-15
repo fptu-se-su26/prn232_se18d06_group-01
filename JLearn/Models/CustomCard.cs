@@ -19,12 +19,6 @@ public class CustomCard : BaseEntity
     [MaxLength(1000)]
     public string Meaning { get; set; } = string.Empty;
 
-    // SRS fields
-    public int Level { get; set; } = 1;
-    public DateTime NextReviewDate { get; set; } = DateTime.UtcNow;
-    public double EaseFactor { get; set; } = 2.5;
-    public int Repetitions { get; set; } = 0;
-    public int IntervalDays { get; set; } = 0;
 
     // Navigation properties
     [ForeignKey(nameof(DeckId))]

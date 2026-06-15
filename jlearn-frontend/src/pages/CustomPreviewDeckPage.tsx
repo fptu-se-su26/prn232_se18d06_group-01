@@ -28,10 +28,9 @@ const CustomPreviewDeckPage: React.FC = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      // Fetch decks to find current deck info
-      const decksResponse = await api.get('/custom-decks');
-      const currentDeck = (decksResponse.data.data || []).find((d: any) => d.deckId === Number(id));
-      setDeck(currentDeck || null);
+      // Fetch single deck detail
+      const deckResponse = await api.get(`/custom-decks/${id}`);
+      setDeck(deckResponse.data.data || null);
 
       // Fetch ALL cards in the deck for free learning
       const cardsResponse = await api.get(`/custom-decks/${id}/cards`);
@@ -40,6 +39,7 @@ const CustomPreviewDeckPage: React.FC = () => {
       setIsFlipped(false);
     } catch (err) {
       console.error(err);
+      setDeck(null);
     } finally {
       setLoading(false);
     }

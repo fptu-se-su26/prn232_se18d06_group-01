@@ -43,6 +43,77 @@ public class CustomDecksController : ControllerBase
             return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message, 400));
         }
     }
+    
+    //GET: api/custom-decks/public
+    [AllowAnonymous]
+    [HttpGet("public")]
+    public async Task<IActionResult> GetPublicDecks()
+    {
+        try
+        {
+            var result = await _customDeckService.GetPublicDecksAsync();
+            return Ok(ApiResponse<List<CustomDeckDto>>.SuccessResponse(result));
+        }
+        catch(Exception ex)
+        {
+            return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message, 400));
+
+        }
+    }
+
+    // GET: api/custom-decks/{id}
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetDeckById(int id)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var result = await _customDeckService.GetDeckByIdAsync(userId, id);
+            if (result == null) return NotFound(ApiResponse<object>.ErrorResponse("Bộ thẻ không tồn tại hoặc bạn không có quyền truy cập.", 404));
+            return Ok(ApiResponse<CustomDeckDto>.SuccessResponse(result));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message, 400));
+        }
+    }
+
+    // PUT: api/custom-decks/{id}
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> UpdateDeck(int id, [FromBody] CustomDeckCreateDto dto)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var result = await _customDeckService.UpdateDeckAsync(userId, id, dto);
+            if (result == null) return NotFound(ApiResponse<object>.ErrorResponse("Bộ thẻ không tồn tại hoặc bạn không có quyền chỉnh sửa.", 404));
+            return Ok(ApiResponse<CustomDeckDto>.SuccessResponse(result));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message, 400));
+        }
+    }
+
+    // POST: api/custom-decks/{id}/clone
+    [HttpPost("{id:int}/clone")]
+    public async Task<IActionResult> CloneDeck(int id)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var result = await _customDeckService.CloneDeckAsync(userId, id);
+            return Ok(ApiResponse<CustomDeckDto>.SuccessResponse(result));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ApiResponse<object>.ErrorResponse(ex.Message, 404));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message, 400));
+        }
+    }
 
     // POST: api/custom-decks
     [HttpPost]
@@ -173,7 +244,7 @@ public class CustomDecksController : ControllerBase
         try
         {
             var userId = GetUserId();
-            var result = await _customDeckService.ImportCardsAsync(userId, id, dto.RawJson);
+            var result = await _customDeckService.ImportCardsAsync(userId, id, dto.Content);
             return Ok(ApiResponse<bool>.SuccessResponse(result));
         }
         catch (UnauthorizedAccessException)
@@ -190,48 +261,5 @@ public class CustomDecksController : ControllerBase
         }
     }
 
-    // GET: api/custom-decks/{id}/reviews
-    [HttpGet("{id:int}/reviews")]
-    [HttpGet("{id:int}/due")]
-    public async Task<IActionResult> GetDueCards(int id)
-    {
-        try
-        {
-            var userId = GetUserId();
-            var result = await _customDeckService.GetDueCardsAsync(userId, id);
-            return Ok(ApiResponse<List<CustomCardDto>>.SuccessResponse(result));
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Forbid();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message, 400));
-        }
-    }
 
-    // POST: api/custom-decks/{id}/review
-    [HttpPost("{id:int}/review")]
-    public async Task<IActionResult> ReviewCard(int id, [FromBody] CustomCardReviewDto dto)
-    {
-        try
-        {
-            var userId = GetUserId();
-            var result = await _customDeckService.ReviewCardAsync(userId, id, dto.CardId, dto.Rating);
-            return Ok(ApiResponse<CustomCardDto>.SuccessResponse(result));
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Forbid();
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ApiResponse<object>.ErrorResponse(ex.Message, 404));
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message, 400));
-        }
-    }
 }

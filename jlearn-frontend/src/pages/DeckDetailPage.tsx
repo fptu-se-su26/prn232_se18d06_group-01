@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { Plus, Sparkles, Edit, Trash2, ArrowLeft, Copy, Check, Info, BookOpen } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { Plus, Sparkles, Edit, Trash2, ArrowLeft, Copy, Check, Info, BookOpen, Globe, Lock, Settings, FolderHeart } from 'lucide-react';
 
 interface CustomCard {
   cardId: number;
@@ -14,44 +15,59 @@ interface CustomCard {
 
 interface CustomDeck {
   deckId: number;
+  userId: number;
   name: string;
   description: string | null;
+  isPublic: boolean;
 }
 
 const DeckDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  
   const [deck, setDeck] = useState<CustomDeck | null>(null);
   const [cards, setCards] = useState<CustomCard[]>([]);
   const [loading, setLoading] = useState(true);
   
+  // Deck Edit Form Modal
+  const [isDeckModalOpen, setIsDeckModalOpen] = useState(false);
+  const [deckName, setDeckName] = useState('');
+  const [deckDescription, setDeckDescription] = useState('');
+  const [deckIsPublic, setDeckIsPublic] = useState(false);
+  const [deckSubmitting, setDeckSubmitting] = useState(false);
+
   // Card Form Modal
   const [isCardModalOpen, setIsCardModalOpen] = useState(false);
   const [editingCard, setEditingCard] = useState<CustomCard | null>(null);
   const [word, setWord] = useState('');
   const [meaning, setMeaning] = useState('');
   
-  // AI Import Modal
-  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
-  const [inputList, setInputList] = useState('');
-  const [generatedPrompt, setGeneratedPrompt] = useState('');
-  const [copiedPrompt, setCopiedPrompt] = useState(false);
-  const [rawJsonInput, setRawJsonInput] = useState('');
+  // CSV Import Modal
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [csvInput, setCsvInput] = useState('');
   const [importLoading, setImportLoading] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
+
+  const [cloning, setCloning] = useState(false);
+
+  // Inline editing states
+  const [editStates, setEditStates] = useState<{[key: number]: { word: string, meaning: string }}>({});
+  const [savingCardId, setSavingCardId] = useState<number | null>(null);
 
   const fetchDeckDetails = async () => {
     try {
       setLoading(true);
-      // Fetch decks to find current deck info
-      const decksResponse = await api.get('/custom-decks');
-      const currentDeck = (decksResponse.data.data || []).find((d: any) => d.deckId === Number(id));
-      setDeck(currentDeck || null);
+      // Fetch single deck detail
+      const deckResponse = await api.get(`/custom-decks/${id}`);
+      setDeck(deckResponse.data.data);
 
-      // Fetch cards
+      // Fetch cards inside this deck
       const cardsResponse = await api.get(`/custom-decks/${id}/cards`);
       setCards(cardsResponse.data.data || []);
     } catch (err) {
       console.error(err);
+      setDeck(null);
     } finally {
       setLoading(false);
     }
@@ -61,46 +77,104 @@ const DeckDetailPage: React.FC = () => {
     fetchDeckDetails();
   }, [id]);
 
-  // Generate Prompt whenever input list changes
-  useEffect(() => {
-    if (!inputList.trim()) {
-      setGeneratedPrompt('');
-      return;
-    }
-    const prompt = `Hãy tạo danh sách thẻ học từ danh sách sau dưới dạng JSON chuẩn. Mỗi phần tử có cấu trúc:
-{
-  "word": "từ vựng, khái niệm hoặc câu hỏi (LƯU Ý: Nếu là câu hỏi trắc nghiệm hoặc câu hỏi có các lựa chọn phương án A, B, C, D... thì bắt buộc phải giữ lại toàn bộ câu hỏi kèm danh sách tất cả các phương án lựa chọn đó ở đây, sử dụng dấu xuống dòng \\n để phân cách)",
-  "meaning": "nghĩa của từ hoặc phương án đáp án đúng tương ứng"
-}.
-Chỉ trả về duy nhất chuỗi JSON thô dạng mảng, không bọc trong markdown (không có \`\`\`json), không giải thích gì thêm.
-
-Danh sách nguồn:
-${inputList.trim()}`;
-    setGeneratedPrompt(prompt);
-  }, [inputList]);
-
-  const handleCopyPrompt = () => {
-    navigator.clipboard.writeText(generatedPrompt);
-    setCopiedPrompt(true);
-    setTimeout(() => setCopiedPrompt(false), 2000);
-  };
-
-  const handleAiImport = async (e: React.FormEvent) => {
+  const handleCsvImport = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!rawJsonInput.trim()) return;
+    if (!csvInput.trim()) return;
 
     try {
       setImportLoading(true);
       setImportError(null);
-      await api.post(`/custom-decks/${id}/import`, { rawJson: rawJsonInput });
-      setInputList('');
-      setRawJsonInput('');
-      setIsAiModalOpen(false);
+      await api.post(`/custom-decks/${id}/import`, { content: csvInput });
+      setCsvInput('');
+      setIsImportModalOpen(false);
       fetchDeckDetails();
     } catch (err: any) {
-      setImportError(err.response?.data?.message || err.message || 'Nhập dữ liệu JSON thất bại. Vui lòng kiểm tra lại định dạng JSON.');
+      setImportError(err.response?.data?.message || err.message || 'Nhập dữ liệu thất bại. Vui lòng kiểm tra lại định dạng CSV.');
     } finally {
       setImportLoading(false);
+    }
+  };
+
+  const handleFieldChange = (cardId: number, field: 'word' | 'meaning', value: string) => {
+    setEditStates(prev => {
+      const current = prev[cardId] || { 
+        word: cards.find(c => c.cardId === cardId)?.word || '', 
+        meaning: cards.find(c => c.cardId === cardId)?.meaning || '' 
+      };
+      return {
+        ...prev,
+        [cardId]: {
+          ...current,
+          [field]: value
+        }
+      };
+    });
+  };
+
+  const hasChanges = (cardId: number) => {
+    const edit = editStates[cardId];
+    if (!edit) return false;
+    const original = cards.find(c => c.cardId === cardId);
+    if (!original) return false;
+    return edit.word.trim() !== original.word.trim() || edit.meaning.trim() !== original.meaning.trim();
+  };
+
+  const handleInlineSave = async (cardId: number) => {
+    const edit = editStates[cardId];
+    if (!edit) return;
+    if (!edit.word.trim() || !edit.meaning.trim()) {
+      alert('Từ khóa và ý nghĩa không được để trống.');
+      return;
+    }
+
+    try {
+      setSavingCardId(cardId);
+      await api.put(`/custom-decks/${id}/cards/${cardId}`, {
+        word: edit.word.trim(),
+        meaning: edit.meaning.trim()
+      });
+      
+      // Update the local card list
+      setCards(prev => prev.map(c => c.cardId === cardId ? { ...c, word: edit.word.trim(), meaning: edit.meaning.trim() } : c));
+      
+      // Clean up edit state
+      setEditStates(prev => {
+        const copy = { ...prev };
+        delete copy[cardId];
+        return copy;
+      });
+    } catch (err) {
+      alert('Lỗi khi lưu thẻ từ vựng.');
+    } finally {
+      setSavingCardId(null);
+    }
+  };
+
+  const openDeckEditModal = () => {
+    if (!deck) return;
+    setDeckName(deck.name);
+    setDeckDescription(deck.description || '');
+    setDeckIsPublic(deck.isPublic);
+    setIsDeckModalOpen(true);
+  };
+
+  const handleDeckEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!deckName.trim()) return;
+
+    try {
+      setDeckSubmitting(true);
+      const response = await api.put(`/custom-decks/${id}`, {
+        name: deckName.trim(),
+        description: deckDescription.trim(),
+        isPublic: deckIsPublic
+      });
+      setDeck(response.data.data);
+      setIsDeckModalOpen(false);
+    } catch (err: any) {
+      alert(err.response?.data?.message || err.message || 'Lỗi khi cập nhật bộ thẻ.');
+    } finally {
+      setDeckSubmitting(false);
     }
   };
 
@@ -150,6 +224,21 @@ ${inputList.trim()}`;
     }
   };
 
+  const handleCloneDeck = async () => {
+    if (!deck) return;
+    try {
+      setCloning(true);
+      const response = await api.post(`/custom-decks/${id}/clone`);
+      const clonedDeck = response.data.data;
+      alert(`Sao chép thành công bộ thẻ "${deck.name}" về thư viện của bạn!`);
+      navigate(`/decks/${clonedDeck.deckId}`);
+    } catch (err: any) {
+      alert(err.response?.data?.message || err.message || 'Lỗi khi sao chép bộ thẻ.');
+    } finally {
+      setCloning(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
@@ -161,15 +250,18 @@ ${inputList.trim()}`;
   if (!deck) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200">Không tìm thấy bộ thẻ</h2>
-          <Link to="/decks" className="mt-4 inline-flex items-center text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
+        <div className="text-center bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-xl max-w-sm">
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-2">Không tìm thấy bộ thẻ</h2>
+          <p className="text-slate-500 dark:text-slate-400 mb-6">Bộ thẻ có thể đã bị xóa hoặc là riêng tư.</p>
+          <Link to="/decks" className="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 shadow-md">
             <ArrowLeft className="w-5 h-5 mr-2" /> Quay lại danh sách
           </Link>
         </div>
       </div>
     );
   }
+
+  const isOwner = deck.userId === user?.userId;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 py-10 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
@@ -180,15 +272,45 @@ ${inputList.trim()}`;
             <ArrowLeft className="w-4 h-4 mr-1.5" />
             Quay lại danh sách
           </Link>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-extrabold text-slate-950 dark:text-white sm:text-4xl tracking-tight">
-                {deck.name}
-              </h1>
-              <p className="mt-2 text-slate-500 dark:text-slate-400">
+          
+          {/* Public Notice for Non-owner */}
+          {!isOwner && (
+            <div className="flex items-start gap-3 p-4 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-350 rounded-2xl border border-indigo-100 dark:border-indigo-900/40 text-sm font-medium">
+              <Info className="w-5 h-5 mt-0.5 flex-shrink-0 text-indigo-500" />
+              <div>
+                <p className="font-bold">Bạn đang xem học phần công khai của thành viên khác</p>
+                <p className="mt-1 text-xs text-indigo-600 dark:text-indigo-400">
+                  Bạn có thể học tự do (Flashcard) trực tiếp. Để bắt đầu học theo tiến trình ôn tập SRS cá nhân và chỉnh sửa nội dung, vui lòng nhấn <b>"Lưu về thư viện"</b> bên phải.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 flex-wrap">
+                <h1 className="text-3xl font-extrabold text-slate-950 dark:text-white sm:text-4xl tracking-tight">
+                  {deck.name}
+                </h1>
+                <div className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                  {deck.isPublic ? (
+                    <>
+                      <Globe className="w-3.5 h-3.5 text-emerald-500" />
+                      Công khai
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="w-3.5 h-3.5 text-slate-450" />
+                      Riêng tư
+                    </>
+                  )}
+                </div>
+              </div>
+              <p className="mt-3 text-slate-600 dark:text-slate-350">
                 {deck.description || 'Không có mô tả cho bộ thẻ này.'}
               </p>
             </div>
+
             <div className="flex flex-wrap gap-3">
               <Link
                 to={`/decks/${id}/preview`}
@@ -201,20 +323,41 @@ ${inputList.trim()}`;
                 <BookOpen className="w-5 h-5 mr-2" />
                 Học tự do
               </Link>
-              <button
-                onClick={() => setIsAiModalOpen(true)}
-                className="flex items-center justify-center bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white px-5 py-3 rounded-xl font-bold transition-all duration-300 shadow-md hover:shadow-indigo-500/10 active:scale-95"
-              >
-                <Sparkles className="w-5 h-5 mr-2" />
-                Import từ AI
-              </button>
-              <button
-                onClick={() => openCardModal()}
-                className="flex items-center justify-center bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white px-5 py-3 rounded-xl font-bold transition-all duration-300 shadow-sm active:scale-95"
-              >
-                <Plus className="w-5 h-5 mr-2" />
-                Thêm thẻ thủ công
-              </button>
+
+              {isOwner ? (
+                <>
+                  <button
+                    onClick={() => setIsImportModalOpen(true)}
+                    className="flex items-center justify-center bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white px-5 py-3 rounded-xl font-bold transition-all duration-300 shadow-md hover:shadow-indigo-500/10 active:scale-95"
+                  >
+                    <Sparkles className="w-5 h-5 mr-2" />
+                    Import từ CSV
+                  </button>
+                  <button
+                    onClick={() => openCardModal()}
+                    className="flex items-center justify-center bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white px-5 py-3 rounded-xl font-bold transition-all duration-300 shadow-sm active:scale-95"
+                  >
+                    <Plus className="w-5 h-5 mr-2" />
+                    Thêm thẻ thủ công
+                  </button>
+                  <button
+                    onClick={openDeckEditModal}
+                    className="flex items-center justify-center bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 p-3 rounded-xl font-bold transition-all duration-300 shadow-sm active:scale-95"
+                    title="Chỉnh sửa bộ thẻ"
+                  >
+                    <Settings className="w-5 h-5" />
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={handleCloneDeck}
+                  disabled={cloning}
+                  className="flex items-center justify-center bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white px-5 py-3 rounded-xl font-bold transition-all duration-300 shadow-md active:scale-95 disabled:from-slate-450 disabled:to-slate-500"
+                >
+                  <FolderHeart className="w-5 h-5 mr-2" />
+                  {cloning ? 'Đang lưu...' : 'Lưu về thư viện'}
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -225,53 +368,65 @@ ${inputList.trim()}`;
             <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-700/50">
               <thead className="bg-slate-50 dark:bg-slate-900/50">
                 <tr>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-1/3">Từ khóa (Word)</th>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-1/3">Ý nghĩa (Meaning)</th>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Cấp độ SRS</th>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Lịch ôn tập</th>
-                  <th scope="col" className="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Hành động</th>
+                  <th scope="col" className={`px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ${isOwner ? 'w-5/12' : 'w-1/2'}`}>Từ khóa (Word)</th>
+                  <th scope="col" className={`px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ${isOwner ? 'w-5/12' : 'w-1/2'}`}>Ý nghĩa (Meaning)</th>
+                  {isOwner && <th scope="col" className="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-2/12">Hành động</th>}
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-slate-800 divide-y divide-slate-100 dark:divide-slate-700/50">
                 {cards.map((card) => (
                   <tr key={card.cardId} className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
-                    <td className="px-6 py-4 text-sm font-bold text-indigo-650 dark:text-indigo-400">{card.word}</td>
-                    <td className="px-6 py-4 text-sm text-slate-900 dark:text-white max-w-md break-words" title={card.meaning}>{card.meaning}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                        card.level === 5 ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400' :
-                        card.level === 4 ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400' :
-                        card.level === 3 ? 'bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-450' :
-                        'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400'
-                      }`}>
-                        Level {card.level}
-                      </span>
+                    <td className="px-6 py-3">
+                      {isOwner ? (
+                        <input 
+                          type="text" 
+                          value={editStates[card.cardId]?.word ?? card.word}
+                          onChange={(e) => handleFieldChange(card.cardId, 'word', e.target.value)}
+                          className="w-full bg-transparent border-b border-transparent hover:border-slate-350 focus:border-indigo-500 focus:bg-slate-50 dark:focus:bg-slate-900 px-2 py-1 rounded transition-all outline-none text-indigo-650 dark:text-indigo-400 font-bold"
+                        />
+                      ) : (
+                        <span className="text-indigo-650 dark:text-indigo-400 font-bold px-2 py-1">{card.word}</span>
+                      )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
-                      {new Date(card.nextReviewDate) <= new Date() 
-                        ? <span className="text-amber-500 dark:text-amber-400 font-bold">Cần ôn ngay</span>
-                        : new Date(card.nextReviewDate).toLocaleDateString('vi-VN')}
+                    <td className="px-6 py-3">
+                      {isOwner ? (
+                        <input 
+                          type="text" 
+                          value={editStates[card.cardId]?.meaning ?? card.meaning}
+                          onChange={(e) => handleFieldChange(card.cardId, 'meaning', e.target.value)}
+                          className="w-full bg-transparent border-b border-transparent hover:border-slate-350 focus:border-indigo-500 focus:bg-slate-50 dark:focus:bg-slate-900 px-2 py-1 rounded transition-all outline-none text-slate-900 dark:text-white"
+                        />
+                      ) : (
+                        <span className="text-slate-900 dark:text-white px-2 py-1 block max-w-md break-words">{card.meaning}</span>
+                      )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-semibold">
-                      <button
-                        onClick={() => openCardModal(card)}
-                        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 mr-4 inline-flex items-center"
-                      >
-                        <Edit className="w-4 h-4 mr-1" /> Sửa
-                      </button>
-                      <button
-                        onClick={() => handleDeleteCard(card.cardId)}
-                        className="text-red-500 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 inline-flex items-center"
-                      >
-                        <Trash2 className="w-4 h-4 mr-1" /> Xóa
-                      </button>
-                    </td>
+                    {isOwner && (
+                      <td className="px-6 py-3 whitespace-nowrap text-right text-sm font-semibold">
+                        {hasChanges(card.cardId) && (
+                          <button
+                            onClick={() => handleInlineSave(card.cardId)}
+                            disabled={savingCardId === card.cardId}
+                            className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-350 mr-4 inline-flex items-center font-bold"
+                          >
+                            <Check className="w-4 h-4 mr-1" /> Save
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleDeleteCard(card.cardId)}
+                          className="text-red-500 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 inline-flex items-center font-bold"
+                        >
+                          <Trash2 className="w-4 h-4 mr-1" /> Xóa
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
                 {cards.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-6 py-16 text-center text-slate-400 dark:text-slate-500 font-medium">
-                      Bộ thẻ chưa có từ vựng nào. Hãy chọn "Import từ AI" hoặc "Thêm thẻ thủ công" để bắt đầu.
+                    <td colSpan={isOwner ? 3 : 2} className="px-6 py-16 text-center text-slate-400 dark:text-slate-500 font-medium">
+                      {isOwner 
+                        ? 'Bộ thẻ chưa có từ vựng nào. Hãy chọn "Import từ CSV" hoặc "Thêm thẻ thủ công" để bắt đầu.'
+                        : 'Bộ thẻ này hiện chưa có nội dung.'}
                     </td>
                   </tr>
                 )}
@@ -280,6 +435,79 @@ ${inputList.trim()}`;
           </div>
         </div>
       </div>
+
+      {/* Modal Chỉnh sửa Bộ Thẻ (Deck Edit Modal) */}
+      {isDeckModalOpen && (
+        <div className="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+          <div className="flex items-center justify-center min-h-screen p-4 text-center">
+            <div className="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm transition-opacity" onClick={() => setIsDeckModalOpen(false)}></div>
+            
+            <div className="relative inline-block align-bottom bg-white dark:bg-slate-800 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-slate-100 dark:border-slate-700">
+              <form onSubmit={handleDeckEditSubmit}>
+                <div className="px-6 pt-6 pb-4">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">
+                    Chỉnh sửa thông tin học phần
+                  </h3>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Tên bộ thẻ *</label>
+                      <input 
+                        type="text" 
+                        required
+                        value={deckName}
+                        onChange={(e) => setDeckName(e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-500/50 text-slate-950 dark:text-white transition-all text-sm"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Mô tả chi tiết</label>
+                      <textarea 
+                        rows={3}
+                        value={deckDescription}
+                        onChange={(e) => setDeckDescription(e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-500/50 text-slate-950 dark:text-white transition-all text-sm resize-none"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
+                      <input 
+                        type="checkbox"
+                        id="editIsPublic"
+                        checked={deckIsPublic}
+                        onChange={(e) => setDeckIsPublic(e.target.checked)}
+                        className="h-4.5 w-4.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-800"
+                      />
+                      <label htmlFor="editIsPublic" className="select-none text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1 cursor-pointer">
+                        <Globe className="w-4 h-4 text-slate-400" />
+                        Công khai bộ thẻ (Mọi người có thể xem và học)
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-50 dark:bg-slate-800/80 px-6 py-4 flex flex-row-reverse gap-3 border-t border-slate-100 dark:border-slate-700/50">
+                  <button 
+                    type="submit"
+                    disabled={deckSubmitting}
+                    className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 active:scale-95 shadow-md shadow-indigo-600/10"
+                  >
+                    {deckSubmitting ? 'Đang lưu...' : 'Lưu lại'}
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={() => setIsDeckModalOpen(false)}
+                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all"
+                  >
+                    Hủy bỏ
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal CRUD Card */}
       {isCardModalOpen && (
@@ -342,18 +570,18 @@ ${inputList.trim()}`;
         </div>
       )}
 
-      {/* Modal Import từ AI */}
-      {isAiModalOpen && (
+      {/* Modal Import từ CSV */}
+      {isImportModalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
           <div className="flex items-center justify-center min-h-screen p-4 text-center">
-            <div className="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm transition-opacity" onClick={() => setIsAiModalOpen(false)}></div>
+            <div className="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm transition-opacity" onClick={() => setIsImportModalOpen(false)}></div>
             
             <div className="relative inline-block align-bottom bg-white dark:bg-slate-800 rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full border border-slate-100 dark:border-slate-700">
-              <form onSubmit={handleAiImport}>
+              <form onSubmit={handleCsvImport}>
                 <div className="px-6 pt-6 pb-4">
                   <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center mb-4">
                     <Sparkles className="w-5 h-5 text-indigo-500 mr-2" />
-                    Quy trình Import nhanh bằng AI
+                    Nhập nhanh từ CSV
                   </h3>
                   
                   {importError && (
@@ -363,63 +591,19 @@ ${inputList.trim()}`;
                   )}
 
                   <div className="space-y-4">
-                    {/* BƯỚC 1 */}
                     <div>
-                      <span className="inline-block bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 text-xs font-bold px-2 py-0.5 rounded mb-1">BƯỚC 1</span>
-                      <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1">
-                        Nhập danh sách của bạn (ví dụ copy từ Quizlet hoặc định dạng `Từ : Ý nghĩa`):
-                      </label>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mb-3 leading-relaxed flex items-start">
+                        <Info className="w-4.5 h-4.5 mr-1.5 flex-shrink-0 text-indigo-500" />
+                        <span>
+                          Dán dữ liệu CSV ngăn cách bởi dấu phẩy. Dòng đầu tiên có thể là tiêu đề <code>"question","answer"</code>. 
+                          Mỗi dòng tiếp theo đại diện cho một thẻ gồm 2 trường được bọc trong dấu ngoặc kép.
+                        </span>
+                      </p>
                       <textarea
-                        rows={3}
-                        placeholder="勉強する : học tập&#10;猫 : con mèo"
-                        value={inputList}
-                        onChange={(e) => setInputList(e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-500/50 text-slate-950 dark:text-white transition-all text-sm resize-none font-mono"
-                      />
-                    </div>
-
-                    {/* BƯỚC 2 */}
-                    {generatedPrompt && (
-                      <div className="bg-slate-50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700/50 relative">
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="inline-block bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 text-xs font-bold px-2 py-0.5 rounded">BƯỚC 2</span>
-                          <button
-                            type="button"
-                            onClick={handleCopyPrompt}
-                            className="flex items-center text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
-                          >
-                            {copiedPrompt ? (
-                              <>
-                                <Check className="w-3.5 h-3.5 mr-1" /> Đã copy
-                              </>
-                            ) : (
-                              <>
-                                <Copy className="w-3.5 h-3.5 mr-1" /> Copy Prompt gửi AI
-                              </>
-                            )}
-                          </button>
-                        </div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-2 leading-relaxed flex items-start">
-                          <Info className="w-4 h-4 mr-1.5 flex-shrink-0 text-slate-400" />
-                          Copy đoạn prompt và dán vào ChatGPT/Gemini để sinh chuỗi JSON rút gọn gồm Word và Meaning.
-                        </p>
-                        <pre className="text-xs text-slate-600 dark:text-slate-350 overflow-y-auto max-h-24 whitespace-pre-wrap font-mono leading-relaxed select-all">
-                          {generatedPrompt}
-                        </pre>
-                      </div>
-                    )}
-
-                    {/* BƯỚC 3 */}
-                    <div>
-                      <span className="inline-block bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 text-xs font-bold px-2 py-0.5 rounded mb-1">BƯỚC 3</span>
-                      <label className="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1">
-                        Dán kết quả JSON nhận được từ AI vào đây để hoàn tất:
-                      </label>
-                      <textarea
-                        rows={4}
-                        placeholder='[&#10;  { "word": "勉強する", "meaning": "học tập" },&#10;  { "word": "猫", "meaning": "con mèo" }&#10;]'
-                        value={rawJsonInput}
-                        onChange={(e) => setRawJsonInput(e.target.value)}
+                        rows={10}
+                        placeholder={`"question","answer"\n"一","Nhất (số 1)"\n"右","Hữu (bên phải)"`}
+                        value={csvInput}
+                        onChange={(e) => setCsvInput(e.target.value)}
                         className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-500/50 text-slate-950 dark:text-white transition-all text-sm resize-none font-mono"
                       />
                     </div>
@@ -429,14 +613,14 @@ ${inputList.trim()}`;
                 <div className="bg-slate-50 dark:bg-slate-800/80 px-6 py-4 flex flex-row-reverse gap-3 border-t border-slate-100 dark:border-slate-700/50">
                   <button 
                     type="submit"
-                    disabled={importLoading || !rawJsonInput.trim()}
+                    disabled={importLoading || !csvInput.trim()}
                     className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 active:scale-95 shadow-md shadow-indigo-600/10"
                   >
                     {importLoading ? 'Đang import...' : 'Xác nhận Import'}
                   </button>
                   <button 
                     type="button" 
-                    onClick={() => setIsAiModalOpen(false)}
+                    onClick={() => setIsImportModalOpen(false)}
                     className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all"
                   >
                     Hủy

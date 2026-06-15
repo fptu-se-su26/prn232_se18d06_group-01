@@ -29,10 +29,49 @@ public class CustomDeckService : ICustomDeckService
                 Name = d.Name,
                 Description = d.Description,
                 CreatedAt = d.CreatedAt,
-                TotalCards = d.CustomCards.Count(c => !c.IsDeleted),
-                DueReviewCount = d.CustomCards.Count(c => !c.IsDeleted && c.NextReviewDate <= DateTime.UtcNow)
+                IsPublic = d.IsPublic,
+                TotalCards = d.CustomCards.Count(c => !c.IsDeleted)
             })
             .ToListAsync();
+    }
+
+    public async Task<List<CustomDeckDto>> GetPublicDecksAsync()
+    {
+        return await _unitOfWork.CustomDecks.Query()
+            .Where(d => !d.IsDeleted)
+            .Where(d => d.IsPublic == true)
+            .Select(d => new CustomDeckDto
+            {
+                DeckId = d.DeckId,
+                UserId = d.UserId,
+                Name = d.Name,
+                Description = d.Description,
+                CreatedAt = d.CreatedAt,
+                IsPublic = d.IsPublic,
+                TotalCards = d.CustomCards.Count(c => !c.IsDeleted)
+            })
+            .ToListAsync();
+    }
+
+    public async Task<CustomDeckDto?> GetDeckByIdAsync(int userId, int deckId)
+    {
+        var deck = await _unitOfWork.CustomDecks.Query()
+            .Include(d => d.CustomCards)
+            .FirstOrDefaultAsync(d => d.DeckId == deckId && !d.IsDeleted);
+
+        if (deck == null) return null;
+        if (deck.UserId != userId && !deck.IsPublic) return null;
+
+        return new CustomDeckDto
+        {
+            DeckId = deck.DeckId,
+            UserId = deck.UserId,
+            Name = deck.Name,
+            Description = deck.Description,
+            CreatedAt = deck.CreatedAt,
+            IsPublic = deck.IsPublic,
+            TotalCards = deck.CustomCards.Count(c => !c.IsDeleted)
+        };
     }
 
     public async Task<CustomDeckDto> CreateDeckAsync(int userId, CustomDeckCreateDto dto)
@@ -41,7 +80,8 @@ public class CustomDeckService : ICustomDeckService
         {
             UserId = userId,
             Name = dto.Name.Trim(),
-            Description = dto.Description?.Trim()
+            Description = dto.Description?.Trim(),
+            IsPublic = dto.IsPublic
         };
 
         await _unitOfWork.CustomDecks.AddAsync(deck);
@@ -54,8 +94,78 @@ public class CustomDeckService : ICustomDeckService
             Name = deck.Name,
             Description = deck.Description,
             CreatedAt = deck.CreatedAt,
-            TotalCards = 0,
-            DueReviewCount = 0
+            IsPublic = deck.IsPublic,
+            TotalCards = 0
+        };
+    }
+
+    public async Task<CustomDeckDto?> UpdateDeckAsync(int userId, int deckId, CustomDeckCreateDto dto)
+    {
+        var deck = await _unitOfWork.CustomDecks.GetByIdAsync(deckId);
+        if (deck == null || deck.UserId != userId) return null;
+
+        deck.Name = dto.Name.Trim();
+        deck.Description = dto.Description?.Trim();
+        deck.IsPublic = dto.IsPublic;
+
+        _unitOfWork.CustomDecks.Update(deck);
+        await _unitOfWork.SaveChangesAsync();
+
+        return new CustomDeckDto
+        {
+            DeckId = deck.DeckId,
+            UserId = deck.UserId,
+            Name = deck.Name,
+            Description = deck.Description,
+            CreatedAt = deck.CreatedAt,
+            IsPublic = deck.IsPublic,
+            TotalCards = deck.CustomCards.Count(c => !c.IsDeleted)
+        };
+    }
+
+    public async Task<CustomDeckDto> CloneDeckAsync(int userId, int deckId)
+    {
+        var sourceDeck = await _unitOfWork.CustomDecks.Query()
+            .Include(d => d.CustomCards)
+            .FirstOrDefaultAsync(d => d.DeckId == deckId && !d.IsDeleted);
+
+        if (sourceDeck == null || !sourceDeck.IsPublic)
+            throw new KeyNotFoundException("Không tìm thấy bộ thẻ công khai hoặc bạn không có quyền sao chép.");
+
+        var clonedDeck = new CustomDeck
+        {
+            UserId = userId,
+            Name = $"{sourceDeck.Name} (Bản sao)",
+            Description = sourceDeck.Description,
+            IsPublic = false
+        };
+
+        await _unitOfWork.CustomDecks.AddAsync(clonedDeck);
+        await _unitOfWork.SaveChangesAsync();
+
+        var cards = sourceDeck.CustomCards.Where(c => !c.IsDeleted).ToList();
+        foreach (var card in cards)
+        {
+            var clonedCard = new CustomCard
+            {
+                DeckId = clonedDeck.DeckId,
+                Word = card.Word,
+                Meaning = card.Meaning
+            };
+            await _unitOfWork.CustomCards.AddAsync(clonedCard);
+        }
+
+        await _unitOfWork.SaveChangesAsync();
+
+        return new CustomDeckDto
+        {
+            DeckId = clonedDeck.DeckId,
+            UserId = clonedDeck.UserId,
+            Name = clonedDeck.Name,
+            Description = clonedDeck.Description,
+            CreatedAt = clonedDeck.CreatedAt,
+            IsPublic = clonedDeck.IsPublic,
+            TotalCards = cards.Count
         };
     }
 
@@ -86,7 +196,7 @@ public class CustomDeckService : ICustomDeckService
     public async Task<List<CustomCardDto>> GetCardsByDeckAsync(int userId, int deckId)
     {
         var deck = await _unitOfWork.CustomDecks.GetByIdAsync(deckId);
-        if (deck == null || deck.UserId != userId)
+        if (deck == null || (deck.UserId != userId && !deck.IsPublic))
             throw new UnauthorizedAccessException("Bạn không có quyền truy cập bộ thẻ này.");
 
         return await _unitOfWork.CustomCards.Query()
@@ -96,12 +206,7 @@ public class CustomDeckService : ICustomDeckService
                 CardId = c.CardId,
                 DeckId = c.DeckId,
                 Word = c.Word,
-                Meaning = c.Meaning,
-                Level = c.Level,
-                NextReviewDate = c.NextReviewDate,
-                EaseFactor = c.EaseFactor,
-                Repetitions = c.Repetitions,
-                IntervalDays = c.IntervalDays
+                Meaning = c.Meaning
             })
             .ToListAsync();
     }
@@ -116,12 +221,7 @@ public class CustomDeckService : ICustomDeckService
         {
             DeckId = deckId,
             Word = dto.Word.Trim(),
-            Meaning = dto.Meaning.Trim(),
-            Level = 1,
-            NextReviewDate = DateTime.UtcNow,
-            EaseFactor = 2.5,
-            Repetitions = 0,
-            IntervalDays = 0
+            Meaning = dto.Meaning.Trim()
         };
 
         await _unitOfWork.CustomCards.AddAsync(card);
@@ -132,12 +232,7 @@ public class CustomDeckService : ICustomDeckService
             CardId = card.CardId,
             DeckId = card.DeckId,
             Word = card.Word,
-            Meaning = card.Meaning,
-            Level = card.Level,
-            NextReviewDate = card.NextReviewDate,
-            EaseFactor = card.EaseFactor,
-            Repetitions = card.Repetitions,
-            IntervalDays = card.IntervalDays
+            Meaning = card.Meaning
         };
     }
 
@@ -162,12 +257,7 @@ public class CustomDeckService : ICustomDeckService
             CardId = card.CardId,
             DeckId = card.DeckId,
             Word = card.Word,
-            Meaning = card.Meaning,
-            Level = card.Level,
-            NextReviewDate = card.NextReviewDate,
-            EaseFactor = card.EaseFactor,
-            Repetitions = card.Repetitions,
-            IntervalDays = card.IntervalDays
+            Meaning = card.Meaning
         };
     }
 
@@ -186,130 +276,92 @@ public class CustomDeckService : ICustomDeckService
         return true;
     }
 
-    public async Task<bool> ImportCardsAsync(int userId, int deckId, string rawJson)
+    public async Task<bool> ImportCardsAsync(int userId, int deckId, string content)
     {
         var deck = await _unitOfWork.CustomDecks.GetByIdAsync(deckId);
         if (deck == null || deck.UserId != userId)
             throw new UnauthorizedAccessException("Bạn không có quyền truy cập bộ thẻ này.");
 
+        if (string.IsNullOrWhiteSpace(content)) return false;
+
         try
         {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-                AllowTrailingCommas = true
-            };
-            var items = JsonSerializer.Deserialize<List<CustomCardCreateDto>>(rawJson, options);
-            if (items == null || items.Count == 0) return false;
+            var lines = content.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+            var cardsToAdd = new List<CustomCard>();
 
-            foreach (var item in items)
+            foreach (var line in lines)
             {
-                if (string.IsNullOrWhiteSpace(item.Word) || string.IsNullOrWhiteSpace(item.Meaning))
+                var trimmedLine = line.Trim();
+                if (string.IsNullOrEmpty(trimmedLine)) continue;
+
+                // Skip header lines
+                if (trimmedLine.Contains("question", StringComparison.OrdinalIgnoreCase) && 
+                    trimmedLine.Contains("answer", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+                if (trimmedLine.Contains("word", StringComparison.OrdinalIgnoreCase) && 
+                    trimmedLine.Contains("meaning", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                string word = "";
+                string meaning = "";
+
+                // Parse quoted CSV format: "word","meaning"
+                if (trimmedLine.Contains("\",\""))
+                {
+                    // Strip leading and trailing double quotes if present
+                    if (trimmedLine.StartsWith("\"")) trimmedLine = trimmedLine.Substring(1);
+                    if (trimmedLine.EndsWith("\"")) trimmedLine = trimmedLine.Substring(0, trimmedLine.Length - 1);
+
+                    var parts = trimmedLine.Split(new[] { "\",\"" }, StringSplitOptions.None);
+                    if (parts.Length >= 2)
+                    {
+                        word = parts[0];
+                        // If there are more parts, join them back
+                        meaning = string.Join("\",\"", parts.Skip(1));
+                    }
+                }
+                else
+                {
+                    // Fallback to simple comma split: word,meaning
+                    var parts = trimmedLine.Split(',');
+                    if (parts.Length >= 2)
+                    {
+                        word = parts[0].Trim(' ', '"', '\t');
+                        meaning = string.Join(",", parts.Skip(1)).Trim(' ', '"', '\t');
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(word) || string.IsNullOrWhiteSpace(meaning))
                     continue;
 
                 var card = new CustomCard
                 {
                     DeckId = deckId,
-                    Word = item.Word.Trim(),
-                    Meaning = item.Meaning.Trim(),
-                    Level = 1,
-                    NextReviewDate = DateTime.UtcNow,
-                    EaseFactor = 2.5,
-                    Repetitions = 0,
-                    IntervalDays = 0
+                    Word = word.Trim(),
+                    Meaning = meaning.Trim()
                 };
+                cardsToAdd.Add(card);
+            }
+
+            if (cardsToAdd.Count == 0) return false;
+
+            foreach (var card in cardsToAdd)
+            {
                 await _unitOfWork.CustomCards.AddAsync(card);
             }
 
             await _unitOfWork.SaveChangesAsync();
             return true;
         }
-        catch (JsonException)
+        catch (Exception ex)
         {
-            throw new ArgumentException("Chuỗi JSON không đúng định dạng chuẩn.");
+            throw new ArgumentException("Định dạng dữ liệu không hợp lệ. Vui lòng sử dụng định dạng CSV. Chi tiết: " + ex.Message);
         }
     }
 
-    // SRS Practicing
-    public async Task<List<CustomCardDto>> GetDueCardsAsync(int userId, int deckId)
-    {
-        var deck = await _unitOfWork.CustomDecks.GetByIdAsync(deckId);
-        if (deck == null || deck.UserId != userId)
-            throw new UnauthorizedAccessException("Bạn không có quyền truy cập bộ thẻ này.");
 
-        return await _unitOfWork.CustomCards.Query()
-            .Where(c => c.DeckId == deckId && !c.IsDeleted && c.NextReviewDate <= DateTime.UtcNow)
-            .Select(c => new CustomCardDto
-            {
-                CardId = c.CardId,
-                DeckId = c.DeckId,
-                Word = c.Word,
-                Meaning = c.Meaning,
-                Level = c.Level,
-                NextReviewDate = c.NextReviewDate,
-                EaseFactor = c.EaseFactor,
-                Repetitions = c.Repetitions,
-                IntervalDays = c.IntervalDays
-            })
-            .ToListAsync();
-    }
-
-    public async Task<CustomCardDto> ReviewCardAsync(int userId, int deckId, int cardId, int rating)
-    {
-        var deck = await _unitOfWork.CustomDecks.GetByIdAsync(deckId);
-        if (deck == null || deck.UserId != userId)
-            throw new UnauthorizedAccessException("Bạn không có quyền truy cập bộ thẻ này.");
-
-        var card = await _unitOfWork.CustomCards.GetByIdAsync(cardId);
-        if (card == null || card.DeckId != deckId)
-            throw new KeyNotFoundException("Không tìm thấy thẻ cần ôn tập.");
-
-        // SM-2 Algorithm
-        rating = Math.Clamp(rating, 1, 5);
-
-        // Adjust Ease Factor
-        card.EaseFactor = card.EaseFactor + (0.1 - (5 - rating) * (0.08 + (5 - rating) * 0.02));
-        if (card.EaseFactor < 1.3) card.EaseFactor = 1.3;
-
-        if (rating >= 3)
-        {
-            card.Repetitions++;
-            if (card.Repetitions == 1)
-            {
-                card.IntervalDays = 1;
-            }
-            else if (card.Repetitions == 2)
-            {
-                card.IntervalDays = 6;
-            }
-            else
-            {
-                card.IntervalDays = (int)Math.Round(card.IntervalDays * card.EaseFactor);
-            }
-        }
-        else
-        {
-            card.Repetitions = 0;
-            card.IntervalDays = 1; // Review again tomorrow
-        }
-
-        card.NextReviewDate = DateTime.UtcNow.AddDays(card.IntervalDays);
-        card.Level = Math.Clamp(card.Repetitions + 1, 1, 5);
-
-        _unitOfWork.CustomCards.Update(card);
-        await _unitOfWork.SaveChangesAsync();
-
-        return new CustomCardDto
-        {
-            CardId = card.CardId,
-            DeckId = card.DeckId,
-            Word = card.Word,
-            Meaning = card.Meaning,
-            Level = card.Level,
-            NextReviewDate = card.NextReviewDate,
-            EaseFactor = card.EaseFactor,
-            Repetitions = card.Repetitions,
-            IntervalDays = card.IntervalDays
-        };
-    }
 }

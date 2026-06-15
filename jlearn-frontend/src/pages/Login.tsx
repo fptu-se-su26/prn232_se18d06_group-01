@@ -13,8 +13,8 @@ export const Login: React.FC = () => {
     e.preventDefault();
     try {
       const response = await api.post('/auth/login', { email, password });
-      const { accessToken, refreshToken, fullName, email: userEmail, role } = response.data.data;
-      const user = { userId: 0, email: userEmail, fullName, role };
+      const { accessToken, refreshToken, fullName, email: userEmail, role, userId } = response.data.data;
+      const user = { userId, email: userEmail, fullName, role };
       login(accessToken, refreshToken, user);
       navigate('/dashboard');
     } catch (error) {

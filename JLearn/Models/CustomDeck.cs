@@ -17,6 +17,8 @@ public class CustomDeck : BaseEntity
 
     [MaxLength(500)]
     public string? Description { get; set; }
+    
+    public bool IsPublic { get; set; }
 
     // Navigation properties
     [ForeignKey(nameof(UserId))]
