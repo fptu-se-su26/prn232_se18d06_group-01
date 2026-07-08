@@ -1,125 +1,116 @@
-# 🇯🇵 JLearn — Nền tảng Học Tiếng Nhật Trực tuyến
+# 🇯🇵 JLearn — Nền Tảng Học & Quản Lý Từ Vựng Tiếng Nhật Cá Nhân
 
 ## 📋 Tổng quan
 
-JLearn là một Web Application học tiếng Nhật trực tuyến, cung cấp lộ trình học tập qua các bài học được cấu trúc sẵn (Minna no Nihongo, JLPT N5-N1). Ứng dụng tập trung vào việc tối ưu hóa khả năng ghi nhớ từ vựng thông qua thuật toán **Lặp lại ngắt quãng (Spaced Repetition)** và đánh giá năng lực qua hệ thống **trắc nghiệm**.
+**JLearn** là một ứng dụng Web học tiếng Nhật trực tuyến, được thiết kế để hỗ trợ người dùng tự tạo, quản lý và chia sẻ các bộ thẻ từ vựng tiếng Nhật theo nhu cầu cá nhân. Ứng dụng tập trung vào tính tự do học tập, hỗ trợ chế độ lật thẻ 3D trực quan và khả năng sao chép (clone) các bộ thẻ hữu ích từ cộng đồng.
+
+---
 
 ## 🛠️ Tech Stack
 
-| Layer | Công nghệ |
-|-------|-----------|
-| **Frontend** | React (Vite), TypeScript, Tailwind CSS, Axios |
+| Thành phần | Công nghệ sử dụng |
+|---|---|
+| **Frontend** | React 18 (Vite), TypeScript, Tailwind CSS, Lucide Icons, Axios |
 | **Backend** | .NET 8 (ASP.NET Core Web API), C# |
 | **Database** | SQL Server (EF Core 8) |
-| **Auth** | JWT (Access Token + Refresh Token) |
-| **Architecture** | Layered (N-Tier) + Repository Pattern + Unit of Work |
+| **Bảo mật & Auth** | JWT (Access Token + Refresh Token) |
+| **Kiến trúc** | Layered (N-Tier) + Repository Pattern + Unit of Work |
+| **Docker** | Hỗ trợ Dockerfile riêng cho từng phần và file Docker Compose chạy toàn hệ thống |
 
-## 👥 Thành viên nhóm
-
-| STT | Họ tên | MSSV | Vai trò |
-|-----|--------|------|---------|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
-| 4 | | | |
-| 5 | | | |
-
-> ⚠️ *Vui lòng cập nhật thông tin thành viên nhóm.*
+---
 
 ## 🚀 Tính năng chính
 
-- **Quản lý khóa học**: Danh sách khóa học JLPT N5-N1, bài học theo chương
-- **Học từ vựng**: Hiển thị Kanji, Kana, Romaji, nghĩa tiếng Việt
-- **Học ngữ pháp**: Cấu trúc, giải thích, ví dụ minh họa
-- **Flashcard 3D**: Lật thẻ ôn tập với thuật toán Spaced Repetition (5 cấp độ)
-- **Trắc nghiệm**: Hệ thống quiz chấm điểm server-side (chống gian lận)
-- **Theo dõi tiến độ**: Dashboard cá nhân, thống kê từ vựng đã học
-- **Admin CMS**: Quản lý CRUD nội dung khóa học
+- **Quản lý bộ thẻ từ vựng cá nhân**: Thêm, sửa, xóa các bộ thẻ từ vựng tùy ý.
+- **Chế độ Công khai & Chia sẻ**: Cho phép đặt bộ thẻ ở chế độ **Công khai (Public)** để chia sẻ với người dùng khác hoặc **Riêng tư (Private)**.
+- **Khám phá & Sao chép (Clone Deck)**: Xem danh sách các bộ thẻ cộng đồng và dễ dàng sao chép về thư viện của riêng mình để chỉnh sửa và học.
+- **Chỉnh sửa trực tiếp (Inline Editing)**: Chỉnh sửa nhanh từ vựng hoặc nghĩa của thẻ ngay trên bảng danh sách của trang chi tiết bộ thẻ mà không cần mở pop-up.
+- **Nhập từ vựng hàng loạt (CSV Import)**: Hỗ trợ import hàng loạt từ vựng qua văn bản CSV tiêu chuẩn (hỗ trợ ngoặc kép bao quanh chuỗi và dấu phẩy).
+- **Chế độ học tự do (Free Study Mode)**: Học từ vựng thông qua thẻ lật 3D tương tác. Hỗ trợ đầy đủ bộ phím tắt thân thiện:
+  - `Phím cách (Space)`: Lật thẻ.
+  - `Mũi tên phải (→) / Phím D`: Chuyển sang thẻ tiếp theo.
+  - `Mũi tên trái (←) / Phím A`: Quay lại thẻ trước.
 
-## 📁 Cấu trúc dự án
+---
+
+## 📁 Cấu trúc thư mục dự án
 
 ```
 JLearn/
 ├── JLearn/                    # Backend - .NET 8 Web API
-│   ├── Controllers/           # API Controllers
-│   ├── Models/                # Entity Models
-│   ├── Data/                  # DbContext & Seeder
-│   ├── DTOs/                  # Data Transfer Objects
-│   ├── Services/              # Business Logic
-│   ├── Repositories/          # Data Access Layer
-│   ├── UnitOfWork/            # Unit of Work Pattern
-│   ├── Helpers/               # JWT Helper, Utilities
-│   ├── Middleware/             # Exception Middleware
+│   ├── Controllers/           # Các API Controller
+│   ├── Models/                # Định nghĩa Entity Database
+│   ├── Data/                  # DbContext và Seed dữ liệu mẫu
+│   ├── DTOs/                  # Đối tượng truyền tải dữ liệu
+│   ├── Services/              # Xử lý logic nghiệp vụ chính
+│   ├── Repositories/          # Tầng tương tác với DB
+│   ├── UnitOfWork/            # Quản lý giao dịch EF Core
 │   └── Migrations/            # EF Core Migrations
-├── docs/                      # Tài liệu dự án
-│   ├── AI_AUDIT_LOG.md        # Nhật ký sử dụng AI
-│   ├── PROMPTS.md             # Các prompt đã dùng với AI
-│   ├── REFLECTION.md          # Phản ánh & đánh giá
-│   └── CHANGELOG.md           # Lịch sử thay đổi
-├── .gitignore
+├── jlearn-frontend/           # Frontend - React + Vite + TS
+│   ├── src/
+│   │   ├── components/        # Component tái sử dụng
+│   │   ├── contexts/          # Auth Context quản lý đăng nhập
+│   │   ├── layouts/           # Bố cục giao diện (Main Layout)
+│   │   ├── pages/             # Trang chính (Dashboard, Decks, Detail, Preview)
+│   │   └── services/          # Gọi API Axios
+│   ├── Dockerfile
+│   └── nginx.conf             # Cấu hình Nginx chạy production frontend
+├── docs/                      # Nhật ký học tập và tài liệu sử dụng AI
+├── docker-compose.yml         # File khởi động toàn bộ dự án bằng Docker
 ├── JLearn.sln
 └── README.md
 ```
 
-## ⚙️ Hướng dẫn cài đặt
+---
 
-### Yêu cầu
+## ⚙️ Hướng dẫn cài đặt và khởi chạy
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (cho SQL Server)
-- [Node.js 18+](https://nodejs.org/) (cho Frontend)
+Dự án hỗ trợ chạy thông qua Docker Compose (khuyên dùng) hoặc chạy thủ công từng dịch vụ.
 
-### Backend
+### Cách 1: Khởi chạy nhanh bằng Docker Compose (Khuyên dùng)
 
+Yêu cầu máy tính đã cài đặt và khởi động **Docker Desktop**.
+
+1. Tại thư mục gốc của dự án, chạy lệnh:
+   ```bash
+   docker-compose up -d --build
+   ```
+2. Sau khi Docker khởi chạy thành công, truy cập các địa chỉ sau:
+   - **Frontend (Giao diện học)**: [http://localhost](http://localhost)
+   - **Backend API (Swagger)**: [http://localhost:5225/swagger](http://localhost:5225/swagger)
+
+---
+
+### Cách 2: Khởi chạy thủ công từng phần
+
+#### 1. Khởi động SQL Server
+Chạy SQL Server thông qua Docker container:
 ```bash
-# 1. Khởi động SQL Server Docker
-docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=JLearn@2024!" \
-  -p 1433:1433 --name jlearn-db \
-  -d mcr.microsoft.com/mssql/server:2022-latest
+docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=JLearn@2024!" -p 1433:1433 --name jlearn-db -d mcr.microsoft.com/mssql/server:2022-latest
+```
 
-# 2. Chạy Migration
+#### 2. Khởi chạy Backend (.NET API)
+```bash
 cd JLearn
+# Tạo database và apply migrations
 dotnet ef database update
-
-# 3. Chạy Backend
-dotnet run --urls="http://localhost:5000"
+# Chạy dự án
+dotnet run
 ```
+*Backend API chạy tại địa chỉ: `http://localhost:5225`.*
 
-### Truy cập
-
-- **Swagger UI**: http://localhost:5000/swagger
-- **Admin Account**: `admin@jlearn.com` / `Admin@123`
-
-## 🌿 Git Workflow
-
-Dự án sử dụng mô hình **Git Flow**:
-
+#### 3. Khởi chạy Frontend (React)
+```bash
+cd jlearn-frontend
+npm install
+npm run dev
 ```
-main                    ← Production (stable)
-├── develop             ← Integration branch
-│   ├── feature/*       ← Feature branches
-│   ├── docs/*          ← Documentation branches
-│   └── bugfix/*        ← Bug fix branches
-```
+*Frontend chạy tại địa chỉ: `http://localhost:5173`.*
 
-**Quy trình:**
-1. Checkout từ `develop` → tạo branch `feature/ten-tinh-nang`
-2. Code + commit theo convention
-3. Push branch → tạo **Pull Request** vào `develop`
-4. Review → Merge
-5. Khi stable → merge `develop` vào `main`
+---
 
-## 📝 Quy định sử dụng AI
+## 🔑 Tài khoản thử nghiệm (Seed Data)
 
-Nhóm **bắt buộc** ghi lại quá trình sử dụng AI vào 4 file trong thư mục `docs/`:
-
-| File | Mô tả |
-|------|--------|
-| [`docs/AI_AUDIT_LOG.md`](docs/AI_AUDIT_LOG.md) | Nhật ký: prompt, kết quả AI, phần sử dụng, phần chỉnh sửa, minh chứng |
-| [`docs/PROMPTS.md`](docs/PROMPTS.md) | Tổng hợp các prompt đã dùng |
-| [`docs/REFLECTION.md`](docs/REFLECTION.md) | Phản ánh: AI giúp gì, hạn chế, bài học |
-| [`docs/CHANGELOG.md`](docs/CHANGELOG.md) | Lịch sử thay đổi theo từng phiên làm việc |
-
-## 📄 License
-
-Dự án phục vụ mục đích học tập — Môn PRN232 — FPT University.
+Khi cơ sở dữ liệu khởi tạo lần đầu, các tài khoản và dữ liệu mẫu sau sẽ được tự động thêm vào:
+* **Tài khoản dùng thử**: `admin@test.com` / Mật khẩu: `123`
+* **Bộ thẻ công khai có sẵn**: Các bộ thẻ từ vựng tiếng Nhật mẫu (như từ vựng N5, N4) đã được thêm sẵn ở trạng thái Công khai để người dùng mới có thể xem và Clone ngay trên Dashboard.
