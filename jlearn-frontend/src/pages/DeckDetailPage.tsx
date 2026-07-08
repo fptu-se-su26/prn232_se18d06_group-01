@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { Plus, Sparkles, Trash2, ArrowLeft, Check, Info, BookOpen, Globe, Lock, Settings, FolderHeart } from 'lucide-react';
+import { Plus, Sparkles, Trash2, ArrowLeft, Check, Info, BookOpen, Globe, Lock, Settings, FolderHeart, HelpCircle } from 'lucide-react';
 
 interface CustomCard {
   cardId: number;
@@ -280,7 +280,7 @@ const DeckDetailPage: React.FC = () => {
               <div>
                 <p className="font-bold">Bạn đang xem học phần công khai của thành viên khác</p>
                 <p className="mt-1 text-xs text-indigo-600 dark:text-indigo-400">
-                  Bạn có thể học tự do (Flashcard) trực tiếp. Để bắt đầu học theo tiến trình ôn tập SRS cá nhân và chỉnh sửa nội dung, vui lòng nhấn <b>"Lưu về thư viện"</b> bên phải.
+                  Bạn có thể học tự do (Flashcard) hoặc làm trắc nghiệm trực tiếp. Để bắt đầu tự do thêm, sửa, xóa thẻ từ vựng và sở hữu bộ thẻ này, vui lòng nhấn <b>"Lưu về thư viện"</b> bên phải.
                 </p>
               </div>
             </div>
@@ -317,11 +317,24 @@ const DeckDetailPage: React.FC = () => {
                 className={`flex items-center justify-center px-5 py-3 rounded-xl font-bold transition-all duration-300 shadow-md active:scale-95 ${
                   cards.length === 0
                     ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed pointer-events-none shadow-none border border-slate-200 dark:border-slate-700'
-                    : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/10'
+                    : 'bg-indigo-650 hover:bg-indigo-700 text-white shadow-indigo-500/10'
                 }`}
               >
                 <BookOpen className="w-5 h-5 mr-2" />
                 Học tự do
+              </Link>
+
+              <Link
+                to={`/decks/${id}/quiz`}
+                className={`flex items-center justify-center px-5 py-3 rounded-xl font-bold transition-all duration-300 shadow-md active:scale-95 ${
+                  cards.length < 4
+                    ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed pointer-events-none shadow-none border border-slate-200 dark:border-slate-700'
+                    : 'bg-indigo-50 hover:bg-indigo-100/70 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30 shadow-sm'
+                }`}
+                title={cards.length < 4 ? 'Cần ít nhất 4 từ vựng để bắt đầu trắc nghiệm' : 'Bắt đầu kiểm tra trắc nghiệm'}
+              >
+                <HelpCircle className="w-5 h-5 mr-2" />
+                Kiểm tra (Quiz)
               </Link>
 
               {isOwner ? (

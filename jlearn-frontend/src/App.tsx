@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import CustomDecksPage from './pages/CustomDecksPage';
 import DeckDetailPage from './pages/DeckDetailPage';
 import CustomPreviewDeckPage from './pages/CustomPreviewDeckPage';
+import DeckQuizPage from './pages/DeckQuizPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -28,10 +29,12 @@ function AppRoutes() {
         <Route path="/decks" element={<CustomDecksPage />} />
         <Route path="/decks/:id" element={<DeckDetailPage />} />
         <Route path="/decks/:id/preview" element={<CustomPreviewDeckPage />} />
+        <Route path="/decks/:id/quiz" element={<DeckQuizPage />} />
       </Route>
     </Routes>
   );
 }
+
 
 function App() {
   useEffect(() => {
