@@ -1,5 +1,6 @@
 using JLearn.DTOs.CustomCard;
 using JLearn.DTOs.CustomDeck;
+using JLearn.DTOs.QuizResult;
 
 namespace JLearn.Services.Interfaces;
 
@@ -21,5 +22,9 @@ public interface ICustomDeckService
     Task<bool> DeleteCardAsync(int userId, int deckId, int cardId);
     Task<bool> ImportCardsAsync(int userId, int deckId, string content);
 
-
+    // Quiz Results
+    Task<QuizResultDto> SaveQuizResultAsync(int userId, int deckId, QuizResultCreateDto dto);
+    Task<List<QuizResultDto>> GetQuizResultsByDeckAsync(int userId, int deckId);
+    Task<List<QuizResultDto>> GetUserQuizHistoryAsync(int userId, int limit = 10);
 }
+

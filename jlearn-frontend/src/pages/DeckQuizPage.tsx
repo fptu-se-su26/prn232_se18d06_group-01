@@ -60,6 +60,8 @@ const DeckQuizPage: React.FC = () => {
   const [correctCount, setCorrectCount] = useState(0);
   const [wrongCount, setWrongCount] = useState(0);
   const [wrongAnswers, setWrongAnswers] = useState<WrongAnswer[]>([]);
+  const [isSavingScore, setIsSavingScore] = useState(false);
+  const [isSavedScore, setIsSavedScore] = useState(false);
 
   useEffect(() => {
     const fetchDeckAndCards = async () => {
@@ -138,7 +140,25 @@ const DeckQuizPage: React.FC = () => {
     setCorrectCount(0);
     setWrongCount(0);
     setWrongAnswers([]);
+    setIsSavedScore(false);
+    setIsSavingScore(false);
     setGameState('playing');
+  };
+
+  const saveQuizScore = async (finalCorrectCount: number, finalTotalCount: number) => {
+    try {
+      setIsSavingScore(true);
+      await api.post(`/custom-decks/${id}/quiz-results`, {
+        quizType,
+        totalQuestions: finalTotalCount,
+        correctAnswers: finalCorrectCount
+      });
+      setIsSavedScore(true);
+    } catch (err) {
+      console.error('Lỗi khi lưu kết quả bài test:', err);
+    } finally {
+      setIsSavingScore(false);
+    }
   };
 
   const handleOptionSelect = (option: string) => {
@@ -166,6 +186,7 @@ const DeckQuizPage: React.FC = () => {
       setSelectedOption(null);
       setIsAnswered(false);
     } else {
+      saveQuizScore(correctCount, questions.length);
       setGameState('summary');
     }
   };
@@ -393,6 +414,13 @@ const DeckQuizPage: React.FC = () => {
               <p className="text-slate-500 dark:text-slate-450 text-sm font-medium">
                 Bộ thẻ: {deck.name}
               </p>
+              {isSavedScore && (
+                <div className="pt-2">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1.5 rounded-full border border-emerald-200 dark:border-emerald-900/30">
+                    <CheckCircle2 className="w-4 h-4" /> Đã lưu kết quả vào lịch sử tài khoản
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Statistics */}

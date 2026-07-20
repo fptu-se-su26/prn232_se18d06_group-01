@@ -1,5 +1,6 @@
 using JLearn.DTOs.CustomCard;
 using JLearn.DTOs.CustomDeck;
+using JLearn.DTOs.QuizResult;
 using JLearn.Models;
 using JLearn.Services.Interfaces;
 using JLearn.UnitOfWork;
@@ -363,5 +364,96 @@ public class CustomDeckService : ICustomDeckService
         }
     }
 
+    // Quiz Results
+    public async Task<QuizResultDto> SaveQuizResultAsync(int userId, int deckId, QuizResultCreateDto dto)
+    {
+        var deck = await _unitOfWork.CustomDecks.Query()
+            .FirstOrDefaultAsync(d => d.DeckId == deckId && !d.IsDeleted);
 
+        if (deck == null)
+            throw new KeyNotFoundException("Bộ thẻ không tồn tại.");
+
+        var percentage = dto.TotalQuestions > 0 
+            ? Math.Round(((double)dto.CorrectAnswers / dto.TotalQuestions) * 100, 1) 
+            : 0;
+
+        var quizResult = new QuizResult
+        {
+            UserId = userId,
+            DeckId = deckId,
+            QuizType = dto.QuizType,
+            TotalQuestions = dto.TotalQuestions,
+            CorrectAnswers = dto.CorrectAnswers,
+            ScorePercentage = percentage,
+            CompletedAt = DateTime.UtcNow
+        };
+
+        await _unitOfWork.QuizResults.AddAsync(quizResult);
+        await _unitOfWork.SaveChangesAsync();
+
+        var user = await _unitOfWork.Users.GetByIdAsync(userId);
+
+        return new QuizResultDto
+        {
+            QuizResultId = quizResult.QuizResultId,
+            DeckId = deck.DeckId,
+            DeckName = deck.Name,
+            UserId = userId,
+            UserFullName = user?.FullName ?? string.Empty,
+            QuizType = quizResult.QuizType,
+            TotalQuestions = quizResult.TotalQuestions,
+            CorrectAnswers = quizResult.CorrectAnswers,
+            ScorePercentage = quizResult.ScorePercentage,
+            CompletedAt = quizResult.CompletedAt
+        };
+    }
+
+    public async Task<List<QuizResultDto>> GetQuizResultsByDeckAsync(int userId, int deckId)
+    {
+        return await _unitOfWork.QuizResults.Query()
+            .Include(q => q.CustomDeck)
+            .Include(q => q.User)
+            .Where(q => q.DeckId == deckId && q.UserId == userId && !q.IsDeleted)
+            .OrderByDescending(q => q.CompletedAt)
+            .Select(q => new QuizResultDto
+            {
+                QuizResultId = q.QuizResultId,
+                DeckId = q.DeckId,
+                DeckName = q.CustomDeck.Name,
+                UserId = q.UserId,
+                UserFullName = q.User.FullName,
+                QuizType = q.QuizType,
+                TotalQuestions = q.TotalQuestions,
+                CorrectAnswers = q.CorrectAnswers,
+                ScorePercentage = q.ScorePercentage,
+                CompletedAt = q.CompletedAt
+            })
+            .ToListAsync();
+    }
+
+    public async Task<List<QuizResultDto>> GetUserQuizHistoryAsync(int userId, int limit = 10)
+    {
+        return await _unitOfWork.QuizResults.Query()
+            .Include(q => q.CustomDeck)
+            .Include(q => q.User)
+            .Where(q => q.UserId == userId && !q.IsDeleted)
+            .OrderByDescending(q => q.CompletedAt)
+            .Take(limit)
+            .Select(q => new QuizResultDto
+            {
+                QuizResultId = q.QuizResultId,
+                DeckId = q.DeckId,
+                DeckName = q.CustomDeck.Name,
+                UserId = q.UserId,
+                UserFullName = q.User.FullName,
+                QuizType = q.QuizType,
+                TotalQuestions = q.TotalQuestions,
+                CorrectAnswers = q.CorrectAnswers,
+                ScorePercentage = q.ScorePercentage,
+                CompletedAt = q.CompletedAt
+            })
+            .ToListAsync();
+    }
 }
+
+
