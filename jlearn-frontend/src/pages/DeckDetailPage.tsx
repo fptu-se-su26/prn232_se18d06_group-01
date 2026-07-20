@@ -318,13 +318,13 @@ const DeckDetailPage: React.FC = () => {
                     </>
                   ) : (
                     <>
-                      <Lock className="w-3.5 h-3.5 text-slate-450" />
+                      <Lock className="w-3.5 h-3.5 text-slate-400" />
                       Riêng tư
                     </>
                   )}
                 </div>
               </div>
-              <p className="mt-3 text-slate-600 dark:text-slate-350">
+              <p className="mt-3 text-slate-600 dark:text-slate-300">
                 {deck.description || 'Không có mô tả cho bộ thẻ này.'}
               </p>
             </div>
@@ -335,7 +335,7 @@ const DeckDetailPage: React.FC = () => {
                 className={`flex items-center justify-center px-5 py-3 rounded-xl font-bold transition-all duration-300 shadow-md active:scale-95 ${
                   cards.length === 0
                     ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed pointer-events-none shadow-none border border-slate-200 dark:border-slate-700'
-                    : 'bg-indigo-650 hover:bg-indigo-700 text-white shadow-indigo-500/10'
+                    : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/10'
                 }`}
               >
                 <BookOpen className="w-5 h-5 mr-2" />
@@ -383,7 +383,7 @@ const DeckDetailPage: React.FC = () => {
                 <button
                   onClick={handleCloneDeck}
                   disabled={cloning}
-                  className="flex items-center justify-center bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white px-5 py-3 rounded-xl font-bold transition-all duration-300 shadow-md active:scale-95 disabled:from-slate-450 disabled:to-slate-500"
+                  className="flex items-center justify-center bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white px-5 py-3 rounded-xl font-bold transition-all duration-300 shadow-md active:scale-95 disabled:from-slate-400 disabled:to-slate-500"
                 >
                   <FolderHeart className="w-5 h-5 mr-2" />
                   {cloning ? 'Đang lưu...' : 'Lưu về thư viện'}
@@ -397,7 +397,7 @@ const DeckDetailPage: React.FC = () => {
         {quizHistory.length > 0 && (
           <div className="mb-8 bg-white dark:bg-slate-800 rounded-3xl p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-slate-850 dark:text-white flex items-center gap-2">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
                 <Trophy className="w-5 h-5 text-amber-500" />
                 Lịch sử làm bài trắc nghiệm gần đây
               </h3>
@@ -412,7 +412,7 @@ const DeckDetailPage: React.FC = () => {
                     <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-2 py-0.5 rounded uppercase">
                       {res.quizType}
                     </span>
-                    <p className="text-xs text-slate-450 dark:text-slate-500 mt-1">
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
                       {new Date(res.completedAt).toLocaleDateString('vi-VN')} {new Date(res.completedAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
@@ -450,10 +450,10 @@ const DeckDetailPage: React.FC = () => {
                           type="text" 
                           value={editStates[card.cardId]?.word ?? card.word}
                           onChange={(e) => handleFieldChange(card.cardId, 'word', e.target.value)}
-                          className="w-full bg-transparent border-b border-transparent hover:border-slate-350 focus:border-indigo-500 focus:bg-slate-50 dark:focus:bg-slate-900 px-2 py-1 rounded transition-all outline-none text-indigo-650 dark:text-indigo-400 font-bold"
+                          className="w-full bg-transparent border-b border-transparent hover:border-slate-300 focus:border-indigo-500 focus:bg-slate-50 dark:focus:bg-slate-900 px-2 py-1 rounded transition-all outline-none text-indigo-600 dark:text-indigo-400 font-bold"
                         />
                       ) : (
-                        <span className="text-indigo-650 dark:text-indigo-400 font-bold px-2 py-1">{card.word}</span>
+                        <span className="text-indigo-600 dark:text-indigo-400 font-bold px-2 py-1">{card.word}</span>
                       )}
                     </td>
                     <td className="px-6 py-3">
@@ -462,7 +462,7 @@ const DeckDetailPage: React.FC = () => {
                           type="text" 
                           value={editStates[card.cardId]?.meaning ?? card.meaning}
                           onChange={(e) => handleFieldChange(card.cardId, 'meaning', e.target.value)}
-                          className="w-full bg-transparent border-b border-transparent hover:border-slate-350 focus:border-indigo-500 focus:bg-slate-50 dark:focus:bg-slate-900 px-2 py-1 rounded transition-all outline-none text-slate-900 dark:text-white"
+                          className="w-full bg-transparent border-b border-transparent hover:border-slate-300 focus:border-indigo-500 focus:bg-slate-50 dark:focus:bg-slate-900 px-2 py-1 rounded transition-all outline-none text-slate-900 dark:text-white"
                         />
                       ) : (
                         <span className="text-slate-900 dark:text-white px-2 py-1 block max-w-md break-words">{card.meaning}</span>

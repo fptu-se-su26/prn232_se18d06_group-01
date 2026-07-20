@@ -193,7 +193,7 @@ const DeckQuizPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-955">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
       </div>
     );
@@ -201,11 +201,11 @@ const DeckQuizPage: React.FC = () => {
 
   if (error || !deck) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-955 p-4">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-4">
         <div className="text-center bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-xl max-w-sm w-full space-y-4">
           <AlertTriangle className="mx-auto h-12 w-12 text-rose-500" />
           <h2 className="text-2xl font-extrabold text-slate-800 dark:text-white">Lỗi xảy ra</h2>
-          <p className="text-slate-550 dark:text-slate-400 text-sm leading-relaxed">{error || 'Không tìm thấy bộ thẻ.'}</p>
+          <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">{error || 'Không tìm thấy bộ thẻ.'}</p>
           <Link to="/decks" className="block w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-md">
             Quay lại danh sách
           </Link>
@@ -219,17 +219,17 @@ const DeckQuizPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-10 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
         <div className="max-w-2xl mx-auto space-y-8">
-          <Link to={`/decks/${id}`} className="inline-flex items-center text-sm font-semibold text-slate-550 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 transition-colors">
+          <Link to={`/decks/${id}`} className="inline-flex items-center text-sm font-semibold text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 transition-colors">
             <ArrowLeft className="w-5 h-5 mr-1.5" />
             Thoát trắc nghiệm
           </Link>
 
-          <div className="bg-white dark:bg-slate-905 rounded-3xl p-8 border border-slate-100 dark:border-slate-800 shadow-sm space-y-6">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-100 dark:border-slate-800 shadow-sm space-y-6 transition-colors duration-300">
             <div className="space-y-2">
               <span className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1.5 rounded-lg border border-indigo-100 dark:border-indigo-900/30">
                 Chế độ Kiểm tra
               </span>
-              <h1 className="text-3xl font-black text-slate-850 dark:text-white tracking-tight pt-2">
+              <h1 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight pt-2">
                 Trắc nghiệm: {deck.name}
               </h1>
               <p className="text-slate-500 dark:text-slate-400 text-sm">
@@ -238,7 +238,7 @@ const DeckQuizPage: React.FC = () => {
             </div>
 
             {cards.length < 4 ? (
-              <div className="p-5 bg-rose-50 dark:bg-rose-955/30 text-rose-600 dark:text-rose-450 border border-rose-100 dark:border-rose-900/30 rounded-2xl flex items-start gap-3">
+              <div className="p-5 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30 rounded-2xl flex items-start gap-3">
                 <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
                 <div className="text-sm">
                   <p className="font-bold">Không đủ từ vựng để bắt đầu</p>
@@ -323,20 +323,20 @@ const DeckQuizPage: React.FC = () => {
             </div>
             <div className="w-full bg-slate-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden shadow-inner">
               <div 
-                className="bg-indigo-650 h-full rounded-full transition-all duration-300"
+                className="bg-indigo-600 h-full rounded-full transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
           </div>
 
           {/* Question Box */}
-          <div className="bg-white dark:bg-slate-905 rounded-3xl p-8 border border-slate-100 dark:border-slate-800 shadow-sm space-y-8 flex flex-col items-center">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-100 dark:border-slate-800 shadow-sm space-y-8 flex flex-col items-center transition-colors duration-300">
             <div className="text-center space-y-3 w-full">
               <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-200/50 dark:border-slate-700/30">
                 <HelpCircle className="w-3.5 h-3.5" /> 
                 {currentQuestion.type === 'jp-vi' ? 'Hãy dịch từ này sang tiếng Việt' : 'Từ tiếng Nhật tương ứng là gì?'}
               </span>
-              <h2 className="text-4xl font-extrabold text-slate-850 dark:text-white pt-4 select-all leading-snug break-all max-w-full px-2">
+              <h2 className="text-4xl font-extrabold text-slate-800 dark:text-white pt-4 select-all leading-snug break-all max-w-full px-2">
                 {currentQuestion.prompt}
               </h2>
             </div>
@@ -347,18 +347,18 @@ const DeckQuizPage: React.FC = () => {
                 const isSelected = selectedOption === option;
                 const isCorrectOption = option === currentQuestion.correctAnswer;
                 
-                let optionStyle = 'bg-white dark:bg-slate-850 border-slate-200 dark:border-slate-750 text-slate-800 dark:text-slate-200 hover:border-slate-350 hover:bg-slate-50/50 dark:hover:bg-slate-800/50';
+                let optionStyle = 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-750';
                 let iconToShow = null;
 
                 if (isAnswered) {
                   if (isCorrectOption) {
-                    optionStyle = 'bg-emerald-50 dark:bg-emerald-955/30 border-emerald-500 text-emerald-700 dark:text-emerald-400 font-bold';
+                    optionStyle = 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 text-emerald-700 dark:text-emerald-400 font-bold';
                     iconToShow = <Check className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />;
                   } else if (isSelected) {
-                    optionStyle = 'bg-rose-50 dark:bg-rose-955/30 border-rose-500 text-rose-700 dark:text-rose-450 font-bold';
-                    iconToShow = <X className="w-5 h-5 text-rose-600 dark:text-rose-450 flex-shrink-0" />;
+                    optionStyle = 'bg-rose-50 dark:bg-rose-950/40 border-rose-500 text-rose-700 dark:text-rose-400 font-bold';
+                    iconToShow = <X className="w-5 h-5 text-rose-600 dark:text-rose-400 flex-shrink-0" />;
                   } else {
-                    optionStyle = 'opacity-40 bg-white dark:bg-slate-850 border-slate-200 dark:border-slate-750 text-slate-400 dark:text-slate-505 pointer-events-none';
+                    optionStyle = 'opacity-40 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 pointer-events-none';
                   }
                 }
 
@@ -380,7 +380,7 @@ const DeckQuizPage: React.FC = () => {
             {isAnswered && (
               <button
                 onClick={handleNext}
-                className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-bold py-4 rounded-2xl active:scale-95 transition-all mt-4 flex items-center justify-center gap-2 cursor-pointer text-base"
+                className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-bold py-4 rounded-2xl active:scale-95 transition-all mt-4 flex items-center justify-center gap-2 cursor-pointer text-base shadow-md"
               >
                 {currentIdx < questions.length - 1 ? 'Câu tiếp theo' : 'Hoàn thành và xem kết quả'}
               </button>
@@ -399,7 +399,7 @@ const DeckQuizPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-10 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
         <div className="max-w-2xl mx-auto space-y-6">
-          <div className="bg-white dark:bg-slate-905 rounded-3xl p-8 border border-slate-100 dark:border-slate-800 shadow-sm space-y-8 flex flex-col items-center">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-100 dark:border-slate-800 shadow-sm space-y-8 flex flex-col items-center transition-colors duration-300">
             
             {/* Trophy Icon */}
             <div className={`w-24 h-24 rounded-full flex items-center justify-center ${passed ? 'bg-amber-100 dark:bg-amber-950/40 text-amber-500' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>
@@ -408,10 +408,10 @@ const DeckQuizPage: React.FC = () => {
 
             {/* Score Title */}
             <div className="text-center space-y-2">
-              <h1 className="text-3xl font-black text-slate-850 dark:text-white tracking-tight">
+              <h1 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight">
                 Hoàn thành bài kiểm tra!
               </h1>
-              <p className="text-slate-500 dark:text-slate-450 text-sm font-medium">
+              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
                 Bộ thẻ: {deck.name}
               </p>
               {isSavedScore && (
@@ -426,8 +426,8 @@ const DeckQuizPage: React.FC = () => {
             {/* Statistics */}
             <div className="grid grid-cols-3 gap-4 w-full max-w-md pt-4">
               <StatItem title="Số câu đúng" value={`${correctCount} / ${questions.length}`} color="text-emerald-600 dark:text-emerald-400" />
-              <StatItem title="Tỉ lệ đúng" value={`${accuracy}%`} color={passed ? 'text-amber-500' : 'text-indigo-650 dark:text-indigo-400'} />
-              <StatItem title="Số câu sai" value={`${wrongCount}`} color="text-rose-500 dark:text-rose-450" />
+              <StatItem title="Tỉ lệ đúng" value={`${accuracy}%`} color={passed ? 'text-amber-500' : 'text-indigo-600 dark:text-indigo-400'} />
+              <StatItem title="Số câu sai" value={`${wrongCount}`} color="text-rose-500 dark:text-rose-400" />
             </div>
 
             {/* Wrong Answers List */}
@@ -439,12 +439,12 @@ const DeckQuizPage: React.FC = () => {
                 </h3>
                 <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
                   {wrongAnswers.map((item, idx) => (
-                    <div key={idx} className="p-4 rounded-xl bg-slate-50 dark:bg-slate-850 border border-slate-100 dark:border-slate-750 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-sm">
+                    <div key={idx} className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-sm">
                       <div className="space-y-1">
-                        <p className="font-bold text-indigo-650 dark:text-indigo-400 text-base">{item.question.originalCard.word}</p>
-                        <p className="text-slate-550 dark:text-slate-400 text-xs font-semibold">Nghĩa đúng: {item.question.correctAnswer}</p>
+                        <p className="font-bold text-indigo-600 dark:text-indigo-400 text-base">{item.question.originalCard.word}</p>
+                        <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold">Nghĩa đúng: {item.question.correctAnswer}</p>
                       </div>
-                      <div className="text-rose-600 dark:text-rose-400 font-bold bg-rose-50 dark:bg-rose-955/20 px-3 py-1.5 rounded-lg border border-rose-100/50 dark:border-rose-900/20 text-xs sm:self-center self-start">
+                      <div className="text-rose-600 dark:text-rose-400 font-bold bg-rose-50 dark:bg-rose-950/20 px-3 py-1.5 rounded-lg border border-rose-100/50 dark:border-rose-900/20 text-xs sm:self-center self-start">
                         Bạn đã chọn: {item.chosenAnswer}
                       </div>
                     </div>
@@ -490,20 +490,21 @@ interface ConfigOptionProps {
 
 const ConfigOption: React.FC<ConfigOptionProps> = ({ active, onClick, title, desc }) => (
   <button
+    type="button"
     onClick={onClick}
     className={`p-5 rounded-2xl border-2 text-left flex flex-col gap-2 transition-all duration-200 hover:scale-[1.01] active:scale-95 cursor-pointer ${
       active
-        ? 'border-indigo-650 bg-indigo-50/30 dark:bg-indigo-950/20 text-indigo-700 dark:text-indigo-400 font-bold'
-        : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-400 hover:border-slate-350 dark:hover:border-slate-700'
+        ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 font-bold shadow-sm'
+        : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
     }`}
   >
     <span className="font-extrabold text-slate-800 dark:text-white text-base">{title}</span>
-    <span className="text-xs text-slate-450 dark:text-slate-500 font-medium leading-relaxed">{desc}</span>
+    <span className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-relaxed">{desc}</span>
   </button>
 );
 
 const StatItem = ({ title, value, color }: { title: string; value: string; color: string }) => (
-  <div className="bg-slate-50 dark:bg-slate-850 rounded-2xl p-4 border border-slate-100 dark:border-slate-800 flex flex-col items-center justify-center gap-1.5 text-center">
+  <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-4 border border-slate-100 dark:border-slate-700 flex flex-col items-center justify-center gap-1.5 text-center">
     <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{title}</span>
     <span className={`text-xl font-black ${color}`}>{value}</span>
   </div>
