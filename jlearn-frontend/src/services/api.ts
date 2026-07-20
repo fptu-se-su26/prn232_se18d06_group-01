@@ -28,11 +28,15 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
+        const accessToken = localStorage.getItem('accessToken');
         const refreshToken = localStorage.getItem('refreshToken');
         if (!refreshToken) throw new Error("No refresh token");
 
         // Attempt to refresh token
-        const response = await axios.post(`${API_URL}/auth/refresh-token`, { refreshToken });
+        const response = await axios.post(`${API_URL}/auth/refresh-token`, { 
+          accessToken: accessToken || '',
+          refreshToken 
+        });
         const newAccessToken = response.data.data.accessToken;
         const newRefreshToken = response.data.data.refreshToken;
 
@@ -45,6 +49,7 @@ api.interceptors.response.use(
         // Refresh token failed or expired -> force logout
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
         window.location.href = '/login';
         return Promise.reject(refreshError);
       }

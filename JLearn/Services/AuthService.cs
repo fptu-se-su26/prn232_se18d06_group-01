@@ -91,15 +91,32 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponseDto> RefreshTokenAsync(RefreshTokenDto dto)
     {
-        var principal = _jwtHelper.GetPrincipalFromExpiredToken(dto.AccessToken);
-        if (principal == null)
-            throw new ArgumentException("Token không hợp lệ");
+        User? user = null;
 
-        var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
-            throw new ArgumentException("Token không hợp lệ");
+        // Try extracting user from expired Access Token first if provided
+        if (!string.IsNullOrEmpty(dto.AccessToken))
+        {
+            try
+            {
+                var principal = _jwtHelper.GetPrincipalFromExpiredToken(dto.AccessToken);
+                var userIdClaim = principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out var userId))
+                {
+                    user = await _unitOfWork.Users.GetByIdAsync(userId);
+                }
+            }
+            catch
+            {
+                // Fallback to query user directly by RefreshToken
+            }
+        }
 
-        var user = await _unitOfWork.Users.GetByIdAsync(userId);
+        // Fallback: look up user by RefreshToken in DB
+        if (user == null)
+        {
+            user = await _unitOfWork.Users.Query()
+                .FirstOrDefaultAsync(u => u.RefreshToken == dto.RefreshToken);
+        }
 
         if (user == null ||
             user.RefreshToken != dto.RefreshToken ||
