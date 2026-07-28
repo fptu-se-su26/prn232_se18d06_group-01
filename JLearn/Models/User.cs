@@ -16,6 +16,8 @@ public class User : BaseEntity
 
     [Required, MaxLength(100)]
     public string FullName { get; set; } = string.Empty;
+    
+    public bool isLocked { get; set; } = false;
 
     public UserRole Role { get; set; } = UserRole.Learner;
 

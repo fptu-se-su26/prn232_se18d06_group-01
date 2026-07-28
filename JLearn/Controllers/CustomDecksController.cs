@@ -9,6 +9,39 @@ using System.Security.Claims;
 
 namespace JLearn.Controllers;
 
+/// <summary>
+/// ╔═══════════════════════════════════════════════════════════════════════════════════════════════╗
+/// ║                          CUSTOM DECKS CONTROLLER - API DASHBOARD                             ║
+/// ╠═════════╦════════════════════════════════════════════╦════════════════════════════════════════╣
+/// ║ Method  ║ Endpoint                                   ║ Mô tả                                 ║
+/// ╠═════════╬════════════════════════════════════════════╬════════════════════════════════════════╣
+/// ║  DECK MANAGEMENT                                                                              ║
+/// ╠═════════╬════════════════════════════════════════════╬════════════════════════════════════════╣
+/// ║ GET     ║ /api/custom-decks                          ║ Lấy danh sách deck cá nhân            ║
+/// ║ GET     ║ /api/custom-decks/public          [Anon]   ║ Lấy danh sách deck công khai          ║
+/// ║ GET     ║ /api/custom-decks/{id}                     ║ Lấy chi tiết 1 deck theo ID            ║
+/// ║ POST    ║ /api/custom-decks                          ║ Tạo deck mới                          ║
+/// ║ PUT     ║ /api/custom-decks/{id}                     ║ Cập nhật thông tin deck                ║
+/// ║ DELETE  ║ /api/custom-decks/{id}                     ║ Xóa mềm 1 deck                        ║
+/// ║ POST    ║ /api/custom-decks/{id}/clone               ║ Sao chép deck công khai về cá nhân     ║
+/// ╠═════════╬════════════════════════════════════════════╬════════════════════════════════════════╣
+/// ║  CARD MANAGEMENT                                                                              ║
+/// ╠═════════╬════════════════════════════════════════════╬════════════════════════════════════════╣
+/// ║ GET     ║ /api/custom-decks/{id}/cards               ║ Lấy danh sách thẻ trong deck           ║
+/// ║ POST    ║ /api/custom-decks/{id}/cards               ║ Thêm 1 thẻ mới vào deck               ║
+/// ║ PUT     ║ /api/custom-decks/{id}/cards/{cardId}      ║ Cập nhật nội dung 1 thẻ               ║
+/// ║ DELETE  ║ /api/custom-decks/{id}/cards/{cardId}      ║ Xóa 1 thẻ khỏi deck                   ║
+/// ║ POST    ║ /api/custom-decks/{id}/import              ║ Import nhiều thẻ từ text (bulk)        ║
+/// ╠═════════╬════════════════════════════════════════════╬════════════════════════════════════════╣
+/// ║  QUIZ RESULTS                                                                                 ║
+/// ╠═════════╬════════════════════════════════════════════╬════════════════════════════════════════╣
+/// ║ POST    ║ /api/custom-decks/{id}/quiz-results        ║ Lưu kết quả trắc nghiệm               ║
+/// ║ GET     ║ /api/custom-decks/{id}/quiz-results        ║ Lấy lịch sử điểm theo deck            ║
+/// ║ GET     ║ /api/custom-decks/quiz-history?limit=10    ║ Lấy lịch sử trắc nghiệm toàn bộ      ║
+/// ╚═════════╩════════════════════════════════════════════╩════════════════════════════════════════╝
+/// 
+/// Ghi chú: Tất cả endpoint yêu cầu [Authorize] trừ khi ghi [Anon] (AllowAnonymous).
+/// </summary>
 [Authorize]
 [ApiController]
 [Route("api/custom-decks")]

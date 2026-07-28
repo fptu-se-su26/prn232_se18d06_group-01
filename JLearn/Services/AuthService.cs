@@ -65,6 +65,9 @@ public class AuthService : IAuthService
         var user = await _unitOfWork.Users.Query()
             .FirstOrDefaultAsync(u => u.Email == dto.Email);
 
+        if (user.isLocked)
+            throw new ArgumentException("Tài khoản đã bị khoá, vui lòng liên hệ admin");
+
         if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
             throw new ArgumentException("Email hoặc mật khẩu không đúng");
 
@@ -90,7 +93,7 @@ public class AuthService : IAuthService
     }
 
     public async Task<AuthResponseDto> RefreshTokenAsync(RefreshTokenDto dto)
-    {
+    {   
         User? user = null;
 
         // Try extracting user from expired Access Token first if provided

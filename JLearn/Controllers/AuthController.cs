@@ -5,6 +5,17 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace JLearn.Controllers;
 
+/// <summary>
+/// ╔══════════════════════════════════════════════════════════════════════════════╗
+/// ║                        AUTH CONTROLLER - API DASHBOARD                      ║
+/// ╠═════════╦══════════════════════════════╦═════════════════════════════════════╣
+/// ║ Method  ║ Endpoint                     ║ Mô tả                              ║
+/// ╠═════════╬══════════════════════════════╬═════════════════════════════════════╣
+/// ║ POST    ║ /api/auth/register           ║ Đăng ký tài khoản Learner mới      ║
+/// ║ POST    ║ /api/auth/login              ║ Đăng nhập, nhận Access & Refresh   ║
+/// ║ POST    ║ /api/auth/refresh-token      ║ Cấp lại Access Token mới           ║
+/// ╚═════════╩══════════════════════════════╩═════════════════════════════════════╝
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
