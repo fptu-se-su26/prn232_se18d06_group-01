@@ -41,7 +41,7 @@ const Flashcard: React.FC<FlashcardProps> = ({ vocabulary, isFlipped, onFlip }) 
           style={{ backfaceVisibility: 'hidden' }}
         >
           <div className="flex-1 flex items-center justify-center w-full overflow-y-auto pr-1">
-            <h2 className={`font-extrabold text-slate-800 dark:text-slate-100 text-center tracking-tight leading-snug ${
+            <h2 className={`font-extrabold text-slate-800 dark:text-slate-100 text-center tracking-tight leading-snug whitespace-pre-wrap ${
               wordLength > 100 ? 'text-base sm:text-lg' :
               wordLength > 50 ? 'text-xl sm:text-2xl' :
               wordLength > 20 ? 'text-3xl sm:text-4xl' :
@@ -80,7 +80,7 @@ const Flashcard: React.FC<FlashcardProps> = ({ vocabulary, isFlipped, onFlip }) 
               <span className="px-4 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider mb-3 inline-block">
                 Meaning
               </span>
-              <p className={`font-semibold text-slate-700 dark:text-slate-200 leading-relaxed ${
+              <p className={`font-semibold text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap ${
                 meaningLength > 100 ? 'text-sm sm:text-base' :
                 meaningLength > 50 ? 'text-base sm:text-lg' :
                 'text-xl sm:text-2xl'

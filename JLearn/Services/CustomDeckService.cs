@@ -287,53 +287,26 @@ public class CustomDeckService : ICustomDeckService
 
         try
         {
-            var lines = content.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+            var records = ParseCsvContent(content);
             var cardsToAdd = new List<CustomCard>();
 
-            foreach (var line in lines)
+            foreach (var parts in records)
             {
-                var trimmedLine = line.Trim();
-                if (string.IsNullOrEmpty(trimmedLine)) continue;
+                if (parts.Count < 2) continue;
+
+                string word = parts[0].Trim();
+                string meaning = parts[1].Trim();
 
                 // Skip header lines
-                if (trimmedLine.Contains("question", StringComparison.OrdinalIgnoreCase) && 
-                    trimmedLine.Contains("answer", StringComparison.OrdinalIgnoreCase))
+                if (word.Equals("question", StringComparison.OrdinalIgnoreCase) && 
+                    meaning.Equals("answer", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
-                if (trimmedLine.Contains("word", StringComparison.OrdinalIgnoreCase) && 
-                    trimmedLine.Contains("meaning", StringComparison.OrdinalIgnoreCase))
+                if (word.Equals("word", StringComparison.OrdinalIgnoreCase) && 
+                    meaning.Equals("meaning", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
-                }
-
-                string word = "";
-                string meaning = "";
-
-                // Parse quoted CSV format: "word","meaning"
-                if (trimmedLine.Contains("\",\""))
-                {
-                    // Strip leading and trailing double quotes if present
-                    if (trimmedLine.StartsWith("\"")) trimmedLine = trimmedLine.Substring(1);
-                    if (trimmedLine.EndsWith("\"")) trimmedLine = trimmedLine.Substring(0, trimmedLine.Length - 1);
-
-                    var parts = trimmedLine.Split(new[] { "\",\"" }, StringSplitOptions.None);
-                    if (parts.Length >= 2)
-                    {
-                        word = parts[0];
-                        // If there are more parts, join them back
-                        meaning = string.Join("\",\"", parts.Skip(1));
-                    }
-                }
-                else
-                {
-                    // Fallback to simple comma split: word,meaning
-                    var parts = trimmedLine.Split(',');
-                    if (parts.Length >= 2)
-                    {
-                        word = parts[0].Trim(' ', '"', '\t');
-                        meaning = string.Join(",", parts.Skip(1)).Trim(' ', '"', '\t');
-                    }
                 }
 
                 if (string.IsNullOrWhiteSpace(word) || string.IsNullOrWhiteSpace(meaning))
@@ -342,8 +315,8 @@ public class CustomDeckService : ICustomDeckService
                 var card = new CustomCard
                 {
                     DeckId = deckId,
-                    Word = word.Trim(),
-                    Meaning = meaning.Trim()
+                    Word = word,
+                    Meaning = meaning
                 };
                 cardsToAdd.Add(card);
             }
@@ -362,6 +335,76 @@ public class CustomDeckService : ICustomDeckService
         {
             throw new ArgumentException("Định dạng dữ liệu không hợp lệ. Vui lòng sử dụng định dạng CSV. Chi tiết: " + ex.Message);
         }
+    }
+
+    private List<List<string>> ParseCsvContent(string content)
+    {
+        var records = new List<List<string>>();
+        var currentRecord = new List<string>();
+        var currentField = new System.Text.StringBuilder();
+        bool inQuotes = false;
+        
+        for (int i = 0; i < content.Length; i++)
+        {
+            char c = content[i];
+            
+            if (inQuotes)
+            {
+                if (c == '"')
+                {
+                    // Check if it's an escaped quote ""
+                    if (i + 1 < content.Length && content[i + 1] == '"')
+                    {
+                        currentField.Append('"');
+                        i++; // Skip the escaped quote
+                    }
+                    else
+                    {
+                        inQuotes = false;
+                    }
+                }
+                else
+                {
+                    currentField.Append(c);
+                }
+            }
+            else
+            {
+                if (c == '"')
+                {
+                    inQuotes = true;
+                }
+                else if (c == ',')
+                {
+                    currentRecord.Add(currentField.ToString());
+                    currentField.Clear();
+                }
+                else if (c == '\r')
+                {
+                    // Ignore CR, handle LF next
+                }
+                else if (c == '\n')
+                {
+                    currentRecord.Add(currentField.ToString());
+                    records.Add(currentRecord);
+                    currentRecord = new List<string>();
+                    currentField.Clear();
+                }
+                else
+                {
+                    currentField.Append(c);
+                }
+            }
+        }
+        
+        // Add the last field and record if the file doesn't end with a newline
+        if (currentField.Length > 0 || currentRecord.Count > 0)
+        {
+            currentRecord.Add(currentField.ToString());
+            records.Add(currentRecord);
+        }
+        
+        return records;
     }
 
     // Quiz Results
