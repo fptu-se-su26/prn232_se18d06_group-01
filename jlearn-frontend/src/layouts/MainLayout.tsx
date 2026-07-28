@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LogOut, User as UserIcon, BookMarked, Home, Sun, Moon, Compass } from 'lucide-react';
+import { LogOut, User as UserIcon, BookMarked, Home, Sun, Moon, Compass, ShieldCheck } from 'lucide-react';
 import clsx from 'clsx';
 
 export const MainLayout: React.FC = () => {
@@ -47,6 +47,9 @@ export const MainLayout: React.FC = () => {
           <NavItem to="/dashboard" icon={<Home size={20} />} label="Trang chủ" />
           <NavItem to="/decks" icon={<BookMarked size={20} />} label="Thẻ cá nhân" />
           <NavItem to="/explore" icon={<Compass size={20} />} label="Khám phá" />
+          {(user?.role === 'Admin' || user?.role === 1) && (
+            <NavItem to="/admin" icon={<ShieldCheck size={20} />} label="Quản trị" />
+          )}
           
           {/* Desktop Theme Toggle at bottom of Nav */}
           <button

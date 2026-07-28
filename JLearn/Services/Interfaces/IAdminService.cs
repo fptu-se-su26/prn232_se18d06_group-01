@@ -10,7 +10,7 @@ public interface IAdminService
     Task<List<UserStatDto>> GetAllUsersAsync();
     Task<UserStatDto?> GetUserByIdAsync(int userId);
     Task<bool> ChangeUserRoleAsync(int userId, string newRole);
-    Task<bool> TxsoggleLockUserAsync(int userId);
+    Task<bool> ToggleLockUserAsync(int userId);
     Task<bool> DeleteUserAsync(int userId);
     // Quản lý Decks
     Task<List<DecksStatDto>> GetAllDecksAsync();

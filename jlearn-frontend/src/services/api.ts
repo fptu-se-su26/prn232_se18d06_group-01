@@ -59,4 +59,15 @@ api.interceptors.response.use(
   }
 );
 
+export const adminApi = {
+  getStats: () => api.get('/admin/stats'),
+  getUsers: () => api.get('/admin/users'),
+  getUserById: (id: number) => api.get(`/admin/users/${id}`),
+  changeRole: (id: number, role: string) => api.put(`/admin/users/${id}/role`, { userId: id, role }),
+  toggleLock: (id: number) => api.put(`/admin/users/${id}/toggle-lock`),
+  deleteUser: (id: number) => api.delete(`/admin/users/${id}`),
+  getDecks: () => api.get('/admin/decks'),
+  deleteDeck: (id: number) => api.delete(`/admin/decks/${id}`),
+};
+
 export default api;

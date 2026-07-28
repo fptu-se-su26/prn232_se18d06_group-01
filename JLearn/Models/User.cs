@@ -26,4 +26,5 @@ public class User : BaseEntity
 
     // Navigation properties
     public virtual ICollection<CustomDeck> CustomDecks { get; set; } = new List<CustomDeck>();
+    public virtual ICollection<QuizResult> QuizResults { get; set; } = new List<QuizResult>();
 }

@@ -10,11 +10,21 @@ import DeckDetailPage from './pages/DeckDetailPage';
 import CustomPreviewDeckPage from './pages/CustomPreviewDeckPage';
 import DeckQuizPage from './pages/DeckQuizPage';
 import ExplorePage from './pages/ExplorePage';
+import AdminDashboard from './pages/AdminDashboard';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
   if (!isAuthenticated) return <Navigate to="/login" replace />;
+  return <>{children}</>;
+};
+
+// Admin Route Component
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated, user } = useAuth();
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  // Check if role is Admin or 1
+  if (user?.role !== 'Admin' && user?.role !== 1) return <Navigate to="/dashboard" replace />;
   return <>{children}</>;
 };
 
@@ -32,6 +42,9 @@ function AppRoutes() {
         <Route path="/decks/:id/preview" element={<CustomPreviewDeckPage />} />
         <Route path="/decks/:id/quiz" element={<DeckQuizPage />} />
         <Route path="/explore" element={<ExplorePage />} />
+        
+        {/* Admin Routes */}
+        <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
       </Route>
     </Routes>
   );
