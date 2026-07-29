@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { ArrowLeft, Check, X, Award, RotateCcw, HelpCircle, Trophy, Play, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Check, X, Award, RotateCcw, HelpCircle, Trophy, Play, CheckCircle2, AlertTriangle, Volume2 } from 'lucide-react';
+import { speakJapanese } from '../utils/speech';
 
 interface CustomCard {
   cardId: number;
@@ -331,14 +332,24 @@ const DeckQuizPage: React.FC = () => {
 
           {/* Question Box */}
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-100 dark:border-slate-800 shadow-sm space-y-8 flex flex-col items-center transition-colors duration-300">
-            <div className="text-center space-y-3 w-full">
+            <div className="text-center space-y-3 w-full relative">
               <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-200/50 dark:border-slate-700/30">
                 <HelpCircle className="w-3.5 h-3.5" /> 
                 {currentQuestion.type === 'jp-vi' ? 'Hãy dịch từ này sang tiếng Việt' : 'Từ tiếng Nhật tương ứng là gì?'}
               </span>
-              <h2 className="text-4xl font-extrabold text-slate-800 dark:text-white pt-4 select-all leading-snug break-all max-w-full px-2">
-                {currentQuestion.prompt}
-              </h2>
+              <div className="flex items-center justify-center gap-3 pt-2">
+                <h2 className="text-4xl font-extrabold text-slate-800 dark:text-white select-all leading-snug break-all max-w-full">
+                  {currentQuestion.prompt}
+                </h2>
+                <button
+                  type="button"
+                  onClick={(e) => speakJapanese(currentQuestion.originalCard.word, e)}
+                  className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-600 hover:text-white transition-all cursor-pointer shadow-sm active:scale-95 flex-shrink-0"
+                  title="Phát âm từ tiếng Nhật"
+                >
+                  <Volume2 className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
             {/* Answer Options Grid */}

@@ -126,6 +126,10 @@ public class CustomDeckService : ICustomDeckService
 
     public async Task<CustomDeckDto> CloneDeckAsync(int userId, int deckId)
     {
+        var userExists = await _unitOfWork.Users.Query().AnyAsync(u => u.UserId == userId);
+        if (!userExists)
+            throw new KeyNotFoundException("Tài khoản người dùng không tồn tại hoặc phiên đăng nhập đã cũ. Vui lòng đăng xuất và đăng nhập lại.");
+
         var sourceDeck = await _unitOfWork.CustomDecks.Query()
             .Include(d => d.CustomCards)
             .FirstOrDefaultAsync(d => d.DeckId == deckId && !d.IsDeleted);

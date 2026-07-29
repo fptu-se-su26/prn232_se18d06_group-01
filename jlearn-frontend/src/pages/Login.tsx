@@ -147,7 +147,7 @@ export const Login: React.FC = () => {
               <input 
                 type="email" 
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value.trim())}
                 className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-sm font-semibold"
                 placeholder="user@example.com"
                 required

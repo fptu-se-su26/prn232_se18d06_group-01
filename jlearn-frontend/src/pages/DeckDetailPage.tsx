@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { Plus, Sparkles, Trash2, ArrowLeft, Check, Info, BookOpen, Globe, Lock, Settings, FolderHeart, HelpCircle, Trophy } from 'lucide-react';
+import { Plus, Sparkles, Trash2, ArrowLeft, Check, Info, BookOpen, Globe, Lock, Settings, FolderHeart, HelpCircle, Trophy, Volume2 } from 'lucide-react';
+import { speakJapanese } from '../utils/speech';
 
 interface CustomCard {
   cardId: number;
@@ -445,16 +446,26 @@ const DeckDetailPage: React.FC = () => {
                 {cards.map((card) => (
                   <tr key={card.cardId} className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
                     <td className="px-6 py-3">
-                      {isOwner ? (
-                        <input 
-                          type="text" 
-                          value={editStates[card.cardId]?.word ?? card.word}
-                          onChange={(e) => handleFieldChange(card.cardId, 'word', e.target.value)}
-                          className="w-full bg-transparent border-b border-transparent hover:border-slate-300 focus:border-indigo-500 focus:bg-slate-50 dark:focus:bg-slate-900 px-2 py-1 rounded transition-all outline-none text-indigo-600 dark:text-indigo-400 font-bold"
-                        />
-                      ) : (
-                        <span className="text-indigo-600 dark:text-indigo-400 font-bold px-2 py-1">{card.word}</span>
-                      )}
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={(e) => speakJapanese(editStates[card.cardId]?.word ?? card.word, e)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition-colors flex-shrink-0 cursor-pointer"
+                          title="Phát âm"
+                        >
+                          <Volume2 className="w-4 h-4" />
+                        </button>
+                        {isOwner ? (
+                          <input 
+                            type="text" 
+                            value={editStates[card.cardId]?.word ?? card.word}
+                            onChange={(e) => handleFieldChange(card.cardId, 'word', e.target.value)}
+                            className="w-full bg-transparent border-b border-transparent hover:border-slate-300 focus:border-indigo-500 focus:bg-slate-50 dark:focus:bg-slate-900 px-2 py-1 rounded transition-all outline-none text-indigo-600 dark:text-indigo-400 font-bold"
+                          />
+                        ) : (
+                          <span className="text-indigo-600 dark:text-indigo-400 font-bold px-2 py-1">{card.word}</span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-3">
                       {isOwner ? (
