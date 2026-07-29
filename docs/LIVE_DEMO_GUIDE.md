@@ -1,123 +1,143 @@
-# 🎬 Kịch Bản Thuyết Trình Bằng DEMO Trực Tiếp (No Slides)
+# 🎬 Kịch Bản Thuyết Trình Bằng DEMO Trực Tiếp (Updated)
 **Dự án JLearn - Nền tảng Học từ vựng & Kiểm tra Tiếng Nhật Trực tuyến**
 
 ---
 
-## ⚙️ Chuẩn Bị Trước Khi Demo (1 phút)
+## 📌 Tổng Quan Thuyết Trình
+- **Hình thức**: Demo trực tiếp trên sản phẩm (Live Demo 100%, không dùng Slide).
+- **Thời lượng dự kiến**: 5 - 7 phút (Demo thao tác 5 phút + Trả lời Q&A 2 phút).
+- **Mục tiêu**: Làm nổi bật tính thực tiễn của sản phẩm, trải nghiệm UX/UI hiện đại (Dark mode, Phát âm giọng đọc 🔊, Clone 1-click 🧭), và kiến trúc backend chuẩn mực (.NET 8 N-Tier, Repository & Unit of Work, Docker).
 
-1. **Khởi động Docker**: Đảm bảo các container đang chạy mượt mà bằng lệnh:
+---
+
+## ⚙️ BƯỚC CHUẨN BỊ TRƯỚC KHU DEMO (1 phút)
+
+1. **Khởi động Docker**:
    ```bash
    docker-compose up -d
    ```
-2. **Mở sẵn trình duyệt**: Truy cập `http://localhost`.
-3. **Chuẩn bị đoạn văn bản từ vựng mẫu** (để dán thử tính năng Import hàng loạt):
+2. **Trình duyệt**: Mở sẵn `http://localhost`.
+3. **Đoạn văn bản từ vựng mẫu** (để dán thử tính năng Import từ vựng hàng loạt):
    ```text
    猫 (ねこ - Neko) - Con mèo
    犬 (いぬ - Inu) - Con chó
    食べる (たべる - Taberu) - Ăn (động từ)
    飲む (のむ - Nomu) - Uống (động từ)
-   本 (ほん - Hon) - Sách
+   さようなら (Sayounara) - Tạm biệt
    ```
 
 ---
 
-## 🎯 Kịch Bản Thao Tác & Lời Nói Từng Bước (Demo Flow - 5 đến 7 phút)
+## 🎯 KỊCH BẢN THAO TÁC & CÂU THOẠI TỪNG BƯỚC (Demo Flow)
 
-### 📌 BƯỚC 1: Đăng ký & Cơ chế Giữ Phiên Đăng Nhập (1 phút)
+### 📌 BƯỚC 1: Đăng Ký & Giữ Phiên Đăng Nhập Khi F5 (1 phút)
 
 - **Thao tác trên màn hình**:
-  1. Truy cập `http://localhost/login`.
-  2. Bấm sang tab **Đăng ký**.
-  3. Nhập: Họ tên `Nguyễn Văn Học`, Email `learner1@gmail.com`, Mật khẩu `123456` $\rightarrow$ Bấm **Tạo tài khoản ngay**.
-  4. Sau khi vào trang Dashboard, nhấn phím **F5** (Tải lại trang).
+  1. Mở `http://localhost/login`.
+  2. Chọn sang tab **Đăng ký** $\rightarrow$ Nhập: Họ tên `Nguyễn Văn Học`, Email `learner1@gmail.com`, Mật khẩu `123456` $\rightarrow$ Bấm **Tạo tài khoản ngay**.
+  3. Sau khi vào trang Dashboard, bấm nút **F5** (Tải lại trang).
 
-- **Lời nói với Thầy Cô / Hội Đồng**:
-  > *"Kính chào thầy cô. Hôm nay em xin phép demo trực tiếp hệ thống **JLearn** – Nền tảng học từ vựng và trắc nghiệm tiếng Nhật."*
+- **Kịch bản thoại với Thầy Cô / Hội Đồng**:
+  > *"Kính chào Thầy Cô và Hội đồng. Sau đây em xin phép demo trực tiếp ứng dụng **JLearn** – Nền tảng học từ vựng và trắc nghiệm tiếng Nhật."*
   >
-  > *"Đầu tiên là màn hình Authentication. Em vừa thực hiện đăng ký một tài khoản học viên mới. Ngay khi đăng ký thành công, Backend tự động cấp cặp JWT Access Token và Refresh Token để đăng nhập thẳng vào hệ thống."*
+  > *"Đầu tiên là màn hình Authentication. Em vừa thực hiện tạo một tài khoản học viên mới. Ngay khi đăng ký thành công, Backend tự động cấp cặp JWT Access Token & Refresh Token để đưa người dùng thẳng vào trang chủ."*
   >
-  > *(Khi nhấn F5)*: *"Hệ thống được thiết kế đọc trạng thái đăng nhập đồng bộ từ localStorage, nhờ đó khi người dùng nhấn F5 hay tải lại trang thì phiên làm việc vẫn được giữ nguyên mượt mà mà không bị đẩy văng về trang Đăng nhập."*
+  > *(Khi nhấn F5)*: *"Hệ thống được thiết kế khởi tạo trạng thái Auth đồng bộ từ `localStorage`. Nhờ đó khi người dùng nhấn F5 hay tải lại trang, phiên làm việc vẫn được giữ nguyên mượt mà mà không bị đẩy văng về trang Đăng nhập."*
 
 ---
 
-### 📌 BƯỚC 2: Tạo Bộ Thẻ Cá Nhân & Import Từ Vựng Hàng Loạt (1.5 phút)
+### 📌 BƯỚC 2: Tạo Bộ Thẻ Cá Nhân & Import Từ Vựng Hàng Loạt (1 phút)
 
 - **Thao tác trên màn hình**:
   1. Bấm vào mục **Thẻ cá nhân** trên Sidebar.
-  2. Bấm **+ Tạo bộ thẻ mới** $\rightarrow$ Đặt tên *"Từ vựng N5 Lớp Học"*, mô tả *"Bộ từ vựng ôn thi N5"* $\rightarrow$ Bấm **Tạo mới**.
-  3. Bấm vào bộ thẻ vừa tạo $\rightarrow$ Chọn nút **Nhập nhiều từ vựng (Import)**.
-  4. Dán đoạn văn bản mẫu chuẩn bị sẵn ở trên vào ô nhập $\rightarrow$ Bấm **Nhập danh sách**.
+  2. Bấm **+ Tạo bộ thẻ mới** $\rightarrow$ Nhập tên *"Từ vựng N5 Lớp Học"* $\rightarrow$ Bấm **Tạo mới**.
+  3. Bấm vào bộ thẻ vừa tạo $\rightarrow$ Chọn nút **Import từ CSV (Nhập nhiều từ)**.
+  4. Dán đoạn từ vựng mẫu ở bước chuẩn bị vào khung $\rightarrow$ Bấm **Nhập danh sách**.
 
-- **Lời nói với Thầy Cô / Hội Đồng**:
-  > *"Tiếp theo là chức năng quản lý bộ thẻ cá nhân. Ngoài việc thêm từng từ vựng thủ công, JLearn hỗ trợ tính năng **Bulk Import**."*
+- **Kịch bản thoại với Thầy Cô / Hội Đồng**:
+  > *"Tiếp theo là chức năng quản lý học phần cá nhân. Bên cạnh việc tạo từng thẻ thủ công, JLearn hỗ trợ tính năng **Bulk Import** từ vựng."*
   >
-  > *"Người học chỉ cần dán đoạn danh sách từ vựng dạng `Từ vựng - Nghĩa`, hệ thống sẽ tự động phân tách và chèn hàng loạt thẻ vào cơ sở dữ liệu chỉ trong 1 giây, tiết kiệm tối đa thời gian soạn bài."*
+  > *"Người học chỉ cần dán đoạn văn bản từ vựng dạng `Từ - Nghĩa`, hệ thống sẽ tự động tách và chèn hàng loạt thẻ vào CSDL chỉ trong 1 giây, tiết kiệm tối đa thời gian biên soạn bài học."*
 
 ---
 
-### 📌 BƯỚC 3: Lật Thẻ Ôn Tập & Bài Kiểm Tra Trắc Nghiệm (1.5 phút)
+### 📌 BƯỚC 3: Lật Thẻ Ôn Tập & Phát Âm Giọng Đọc 🔊 (1 phút)
 
 - **Thao tác trên màn hình**:
-  1. Trong trang chi tiết bộ thẻ, bấm **Ôn tập (Lật thẻ)** $\rightarrow$ Bấm lật mặt trước (Chữ Nhật) và mặt sau (Nghĩa tiếng Việt).
-  2. Trở ra bấm nút **Làm bài trắc nghiệm (Quiz Mode)**.
-  3. Chọn Chế độ kiểm tra: *"Trộn (Ngẫu nhiên)"* $\rightarrow$ Bấm **Bắt đầu làm bài**.
-  4. Chọn các đáp án trắc nghiệm $\rightarrow$ Hoàn thành bài thi $\rightarrow$ Màn hình hiển thị kết quả % và Badge xanh *"Đã lưu kết quả vào lịch sử"*.
-  5. Quay lại trang chi tiết bộ thẻ $\rightarrow$ Cuộn xuống mục **"Lịch sử làm bài trắc nghiệm gần đây"** để chỉ vào dòng điểm vừa làm.
+  1. Bấm nút **Học tự do (Lật thẻ)**.
+  2. Bấm nút **Loa 🔊** ở góc thẻ $\rightarrow$ Hệ thống cất giọng phát âm tiếng Nhật `ja-JP`.
+  3. Bấm chạm vào thẻ để lật xem mặt sau (Nghĩa tiếng Việt).
 
-- **Lời nói với Thầy Cô / Hội Đồng**:
-  > *"Sau khi tạo thẻ, người học có 2 chế độ ôn luyện:"*
-  > 1. *"Chế độ **Lật thẻ (Preview Mode)** tương tác trực quan giúp phản xạ ghi nhớ từ."*
-  > 2. *"Chế độ **Trắc nghiệm (Quiz Mode)** với 3 tùy chọn: Nhật-Việt, Việt-Nhật hoặc Trộn ngẫu nhiên."*
+- **Kịch bản thoại với Thầy Cô / Hội Đồng**:
+  > *"Khi ôn tập, người học sử dụng chế độ **Lật thẻ (Preview Mode)** tương tác 3D trực quan."*
   >
-  > *"Khi hoàn thành bài trắc nghiệm, Backend API `/api/custom-decks/{id}/quiz-results` sẽ tự động tính phần trăm điểm số và lưu vào lịch sử làm bài. Người học có thể dễ dàng theo dõi sự tiến bộ của mình qua từng lần làm bài."*
+  > *"Đặc biệt, hệ thống tích hợp công nghệ **Text-to-Speech (Web Speech API)** với biểu tượng nút loa 🔊. Khi bấm vào, trình duyệt sẽ cất giọng phát âm tiếng Nhật chuẩn `ja-JP` với tốc độ vừa phải, giúp người học vừa nhớ mặt chữ vừa luyện nghe âm thanh chuẩn xác."*
 
 ---
 
-### 📌 BƯỚC 4: Khám Phá & Clone Bộ Thẻ Cộng Đồng 1-Click (1 phút)
+### 📌 BƯỚC 4: Trắc Nghiệm (Quiz Mode) & Lưu Lịch Sử Điểm (1 phút)
 
 - **Thao tác trên màn hình**:
-  1. Bấm vào mục **🧭 Khám phá** trên Sidebar.
-  2. Nhập từ khóa tìm kiếm (ví dụ: *"N4"*) vào thanh tìm kiếm.
-  3. Tìm bộ thẻ *"Từ vựng N4 thông dụng"* của người dùng khác $\rightarrow$ Bấm nút **Sao chép (Clone)** $\rightarrow$ Nút chuyển sang trạng thái ✅ **Đã lưu**.
-  4. Quay lại **Thẻ cá nhân** $\rightarrow$ Chỉ cho thầy cô thấy bộ thẻ *"Từ vựng N4 thông dụng (Bản sao)"* đã nằm gọn trong kho của mình.
+  1. Trở ra bấm nút **Kiểm tra (Quiz)**.
+  2. Chọn Chế độ kiểm tra: *"Trộn (Ngẫu nhiên)"* $\rightarrow$ Bấm **Bắt đầu kiểm tra**.
+  3. Bấm biểu tượng **Loa 🔊** ở câu hỏi để nghe âm thanh $\rightarrow$ Chọn các đáp án $\rightarrow$ Hoàn thành bài thi.
+  4. Màn hình hiển thị kết quả % $\rightarrow$ Quay lại trang chi tiết bộ thẻ, cuộn xuống chỉ vào bảng **"Lịch sử làm bài trắc nghiệm gần đây"**.
 
-- **Lời nói với Thầy Cô / Hội Đồng**:
-  > *"Một điểm nổi bật khác của JLearn là tính năng **Khám phá Cộng đồng**."*
+- **Kịch bản thoại với Thầy Cô / Hội Đồng**:
+  > *"Để đánh giá mức độ thuộc bài, JLearn cung cấp chế độ **Trắc nghiệm (Quiz Mode)** với 3 tùy chọn: Nhật-Việt, Việt-Nhật hoặc Trộn ngẫu nhiên."*
   >
-  > *"Người dùng có thể chia sẻ công khai bộ thẻ của mình. Học viên khác khi vào mục Khám phá chỉ cần bấm **Sao chép (Clone)** là toàn bộ deck và các thẻ bên trong sẽ được sao chép về tài khoản cá nhân thông qua API `POST /clone` trong 1-click."*
+  > *"Khi làm xong, API `/api/custom-decks/{id}/quiz-results` ở Backend tự động tính tỉ lệ % câu đúng và lưu vào lịch sử làm bài. Người học có thể xem lại bảng tiến độ điểm số của mình ngay bên dưới."*
 
 ---
 
-### 📌 BƯỚC 5: Trang Quản Trị Hệ Thống (Admin Panel) (1 phút)
+### 📌 BƯỚC 5: Khám Phá & Clone Bộ Thẻ Cộng Đồng 1-Click 🧭 (1 phút)
 
 - **Thao tác trên màn hình**:
-  1. Bấm **Đăng xuất** ở góc dưới Sidebar.
-  2. Đăng nhập bằng tài khoản Admin: Email `admin@jlearn.com`, Mật khẩu `Admin@123`.
-  3. Bấm vào mục **Quản trị Admin** trên Sidebar.
-  4. Cho xem các thẻ Thống kê (Tổng Users, Decks, Cards, Số bài Quiz) $\rightarrow$ Xem bảng Danh sách người dùng $\rightarrow$ Bấm thử nút **Khóa / Mở khóa** hoặc đổi Role của user.
+  1. Bấm mục **🧭 Khám phá** trên Sidebar.
+  2. Tìm kiếm bộ thẻ công khai của Admin $\rightarrow$ Bấm nút **Sao chép (Clone)** $\rightarrow$ Nút chuyển thành ✅ **Đã lưu**.
+  3. Quay lại **Thẻ cá nhân** $\rightarrow$ Cho thấy bộ thẻ vừa clone đã nằm gọn trong kho của mình.
 
-- **Lời nói với Thầy Cô / Hội Đồng**:
-  > *"Cuối cùng là giao diện **Admin Dashboard** dành cho Quản trị viên."*
+- **Kịch bản thoại với Thầy Cô / Hội Đồng**:
+  > *"Mô hình của JLearn hướng tới cộng đồng mở. Tại mục **Khám phá**, người học có thể tìm kiếm các bộ từ vựng được chia sẻ công khai bởi thành viên khác."*
   >
-  > *"Tất cả API Admin đều được bảo vệ bởi middleware phân quyền JWT `[Authorize(Roles = "Admin")]`. Nếu tài khoản Learner cố truy cập sẽ bị chặn ngay lập tức."*
-  >
-  > *"Tại đây, Admin có thể theo dõi bức tranh tổng quan của ứng dụng qua các thẻ thống kê real-time, quản lý danh sách người dùng, thay đổi quyền hạn hoặc khóa tài khoản vi phạm."*
+  > *"Chỉ với 1-click vào nút **Sao chép**, toàn bộ deck và các từ vựng bên trong sẽ được sao chép về kho cá nhân thông qua API `POST /clone` trong CSDL."*
 
 ---
 
-### 📌 BƯỚC 6: Tổng Kết Kỹ Thuật ngắn gọn (30 giây)
+### 📌 BƯỚC 6: Quản Trị Hệ Thống (Admin Dashboard) & Phân Quyền (1 phút)
 
-- **Lời nói kết thúc**:
-  > *"Dự án JLearn được xây dựng trên công nghệ **.NET 8 Web API** chuẩn mô hình N-Tier, kết hợp **Generic Repository & Unit of Work**, tính năng **Xóa mềm (Soft Delete)** bảo toàn dữ liệu. Frontend xây dựng bằng **React 18 TypeScript** kết hợp **Tailwind CSS** hỗ trợ chế độ Dark Mode. Toàn bộ hệ thống được đóng gói và vận hành dễ dàng bằng **Docker Compose**."*
+- **Thao tác trên màn hình**:
+  1. Bấm **Đăng xuất**.
+  2. Đăng nhập tài khoản Admin: Email `admin@jlearn.com`, Mật khẩu `Admin@123`.
+  3. Chọn mục **Quản trị Admin** (`/admin`) trên Sidebar.
+  4. Cho xem các thẻ Thống kê (Users, Decks, Cards, Quizzes) $\rightarrow$ Thao tác bấm nút **Khóa / Mở khóa** tài khoản user.
+
+- **Kịch bản thoại với Thầy Cô / Hội Đồng**:
+  > *"Cuối cùng là trang **Admin Dashboard** dành riêng cho Quản trị viên."*
   >
-  > *"Em xin cảm ơn Thầy Cô đã lắng nghe bài demo của em!"*
+  > *"Tất cả API Admin đều được bảo vệ nghiêm ngặt bằng JWT Role `[Authorize(Roles = "Admin")]`. Admin có thể theo dõi bức tranh thống kê toàn hệ thống real-time, quản lý phân quyền và khóa các tài khoản vi phạm."*
 
 ---
 
-## 🛡️ Bảng Chuẩn Bị Câu Hỏi Vặn Hỏi (Q&A Defense)
+### 📌 BƯỚC 7: Tổng Kết Kỹ Thuật Ngắn Gọn (30 giây)
 
-| Thầy Cô Hỏi | Cách Trả Lời Ngắn Gọn & Thuyết Phục |
-|---|---|
-| **Xóa dữ liệu trong app là xóa thật hay xóa mềm?** | "Dạ hệ thống sử dụng **Xóa mềm (Soft Delete)** ạ. Tất cả Model đều kế thừa `BaseEntity` có trường `IsDeleted`. Khi bấm xóa, hệ thống chỉ gán `IsDeleted = true`, và EF Core có `Global Query Filter` tự bỏ qua dữ liệu này khi query." |
-| **Khi Token hết hạn thì xử lý thế nào?** | "Dạ Frontend có **Axios Interceptor** ở file `api.ts`. Khi API trả về lỗi `401 Unauthorized`, Interceptor sẽ tự động âm thầm gửi `RefreshToken` lên API `/auth/refresh-token` để lấy `AccessToken` mới mà không làm gián đoạn thao tác của người dùng." |
-| **Làm sao đảm bảo tính toàn vẹn khi Clone bộ thẻ gồm nhiều thẻ?** | "Dạ Backend áp dụng **Unit of Work Pattern**. Việc tạo Deck mới và chèn 20 thẻ clone đều dùng chung 1 DbContext và chỉ gọi `SaveChangesAsync()` 1 lần duy nhất ở cuối. Nếu xảy ra lỗi ở bất kỳ thẻ nào, toàn bộ thao tác sẽ được Rollback tự động." |
+- **Kịch bản thoại kết thúc**:
+  > *"Về mặt kỹ thuật, dự án JLearn được xây dựng trên nền tảng **.NET 8 Web API** áp dụng kiến trúc N-Tier, **Generic Repository & Unit of Work**, cơ chế **Xóa mềm (Soft Delete)** bảo toàn dữ liệu. Frontend xây dựng bằng **React 18 TypeScript** với **Tailwind CSS** hỗ trợ Dark Mode. Toàn bộ giải pháp được đóng gói và thực thi bằng **Docker Compose**."*
+  >
+  > *"Em xin cảm ơn Thầy Cô đã theo dõi bài demo của em!"*
+
+---
+
+## 🛡️ BỘ CÂU HỎI VẶN HỎI KỸ THUẬT THƯỜNG GẶP (Q&A Defense)
+
+1. **❓ Thầy cô hỏi: "Tính năng phát âm Text-to-Speech hoạt động như thế nào?"**
+   - **👉 Trả lời**: *"Dạ hệ thống sử dụng **Web Speech API (`window.speechSynthesis`)** tích hợp sẵn của trình duyệt. Khi người dùng bấm loa, Frontend làm sạch văn bản và gọi Engine tổng hợp giọng đọc tiếng Nhật `ja-JP` phát ra loa trực tiếp, không tốn băng thông hay lưu file ghi âm trên Server."*
+
+2. **❓ Thầy cô hỏi: "Xóa dữ liệu trong app là xóa thật hay xóa mềm?"**
+   - **👉 Trả lời**: *"Dạ hệ thống áp dụng **Xóa mềm (Soft Delete)**. Mọi Entity kế thừa `BaseEntity` có thuộc tính `IsDeleted`. Khi xóa, Backend chỉ cập nhật `IsDeleted = true`. Trong `AppDbContext` có cấu hình `Global Query Filter` tự động loại bỏ các bản ghi đã xóa khỏi mọi câu lệnh SELECT."*
+
+3. **❓ Thầy cô hỏi: "Làm sao đảm bảo tính toàn vẹn dữ liệu khi Clone bộ thẻ gồm nhiều thẻ?"**
+   - **👉 Trả lời**: *"Dạ Backend áp dụng **Unit of Work Pattern**. Thao tác tạo Deck mới và chèn danh sách Card clone đều dùng chung 1 `DbContext` và chỉ thực thi `SaveChangesAsync()` đúng 1 lần ở cuối. Nếu xảy ra sự cố giữa chừng, toàn bộ thao tác sẽ tự động Rollback."*
+
+4. **❓ Thầy cô hỏi: "Xử lý Token hết hạn như thế nào?"**
+   - **👉 Trả lời**: *"Dạ Frontend dùng **Axios Interceptor** (`api.ts`). Khi API trả về lỗi `401 Unauthorized`, Interceptor sẽ tự động gửi `RefreshToken` lên API `/auth/refresh-token` để xin lại `AccessToken` mới ngầm mà không làm ngắt quãng thao tác của người dùng."*
