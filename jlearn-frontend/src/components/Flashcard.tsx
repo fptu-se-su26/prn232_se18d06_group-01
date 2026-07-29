@@ -39,7 +39,7 @@ const Flashcard: React.FC<FlashcardProps> = ({ vocabulary, isFlipped, onFlip }) 
       >
         {/* Front Face */}
         <div 
-          className="absolute inset-0 w-full h-full bg-white dark:bg-slate-800 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex flex-col items-center justify-between p-8 border border-slate-100 dark:border-slate-700 relative"
+          className="absolute inset-0 w-full h-full bg-white dark:bg-slate-800 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex flex-col items-center justify-between p-8 border border-slate-100 dark:border-slate-700"
           style={{ backfaceVisibility: 'hidden' }}
         >
           {/* Audio Button */}
@@ -69,7 +69,7 @@ const Flashcard: React.FC<FlashcardProps> = ({ vocabulary, isFlipped, onFlip }) 
 
         {/* Back Face */}
         <div 
-          className="absolute inset-0 w-full h-full bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-slate-800 dark:to-slate-900 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex flex-col items-center justify-center p-8 border border-indigo-100 dark:border-slate-700 relative"
+          className="absolute inset-0 w-full h-full bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-slate-800 dark:to-slate-900 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex flex-col items-center justify-center p-8 border border-indigo-100 dark:border-slate-700"
           style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
         >
           {/* Audio Button */}
