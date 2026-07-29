@@ -1,5 +1,6 @@
 using JLearn.DTOs.CustomCard;
 using JLearn.DTOs.CustomDeck;
+using JLearn.DTOs.QuizResult;
 using JLearn.Models;
 using JLearn.Services.Interfaces;
 using JLearn.UnitOfWork;
@@ -125,6 +126,10 @@ public class CustomDeckService : ICustomDeckService
 
     public async Task<CustomDeckDto> CloneDeckAsync(int userId, int deckId)
     {
+        var userExists = await _unitOfWork.Users.Query().AnyAsync(u => u.UserId == userId);
+        if (!userExists)
+            throw new KeyNotFoundException("Tài khoản người dùng không tồn tại hoặc phiên đăng nhập đã cũ. Vui lòng đăng xuất và đăng nhập lại.");
+
         var sourceDeck = await _unitOfWork.CustomDecks.Query()
             .Include(d => d.CustomCards)
             .FirstOrDefaultAsync(d => d.DeckId == deckId && !d.IsDeleted);
@@ -286,53 +291,26 @@ public class CustomDeckService : ICustomDeckService
 
         try
         {
-            var lines = content.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+            var records = ParseCsvContent(content);
             var cardsToAdd = new List<CustomCard>();
 
-            foreach (var line in lines)
+            foreach (var parts in records)
             {
-                var trimmedLine = line.Trim();
-                if (string.IsNullOrEmpty(trimmedLine)) continue;
+                if (parts.Count < 2) continue;
+
+                string word = parts[0].Trim();
+                string meaning = parts[1].Trim();
 
                 // Skip header lines
-                if (trimmedLine.Contains("question", StringComparison.OrdinalIgnoreCase) && 
-                    trimmedLine.Contains("answer", StringComparison.OrdinalIgnoreCase))
+                if (word.Equals("question", StringComparison.OrdinalIgnoreCase) && 
+                    meaning.Equals("answer", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
-                if (trimmedLine.Contains("word", StringComparison.OrdinalIgnoreCase) && 
-                    trimmedLine.Contains("meaning", StringComparison.OrdinalIgnoreCase))
+                if (word.Equals("word", StringComparison.OrdinalIgnoreCase) && 
+                    meaning.Equals("meaning", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
-                }
-
-                string word = "";
-                string meaning = "";
-
-                // Parse quoted CSV format: "word","meaning"
-                if (trimmedLine.Contains("\",\""))
-                {
-                    // Strip leading and trailing double quotes if present
-                    if (trimmedLine.StartsWith("\"")) trimmedLine = trimmedLine.Substring(1);
-                    if (trimmedLine.EndsWith("\"")) trimmedLine = trimmedLine.Substring(0, trimmedLine.Length - 1);
-
-                    var parts = trimmedLine.Split(new[] { "\",\"" }, StringSplitOptions.None);
-                    if (parts.Length >= 2)
-                    {
-                        word = parts[0];
-                        // If there are more parts, join them back
-                        meaning = string.Join("\",\"", parts.Skip(1));
-                    }
-                }
-                else
-                {
-                    // Fallback to simple comma split: word,meaning
-                    var parts = trimmedLine.Split(',');
-                    if (parts.Length >= 2)
-                    {
-                        word = parts[0].Trim(' ', '"', '\t');
-                        meaning = string.Join(",", parts.Skip(1)).Trim(' ', '"', '\t');
-                    }
                 }
 
                 if (string.IsNullOrWhiteSpace(word) || string.IsNullOrWhiteSpace(meaning))
@@ -341,8 +319,8 @@ public class CustomDeckService : ICustomDeckService
                 var card = new CustomCard
                 {
                     DeckId = deckId,
-                    Word = word.Trim(),
-                    Meaning = meaning.Trim()
+                    Word = word,
+                    Meaning = meaning
                 };
                 cardsToAdd.Add(card);
             }
@@ -363,5 +341,166 @@ public class CustomDeckService : ICustomDeckService
         }
     }
 
+    private List<List<string>> ParseCsvContent(string content)
+    {
+        var records = new List<List<string>>();
+        var currentRecord = new List<string>();
+        var currentField = new System.Text.StringBuilder();
+        bool inQuotes = false;
+        
+        for (int i = 0; i < content.Length; i++)
+        {
+            char c = content[i];
+            
+            if (inQuotes)
+            {
+                if (c == '"')
+                {
+                    // Check if it's an escaped quote ""
+                    if (i + 1 < content.Length && content[i + 1] == '"')
+                    {
+                        currentField.Append('"');
+                        i++; // Skip the escaped quote
+                    }
+                    else
+                    {
+                        inQuotes = false;
+                    }
+                }
+                else
+                {
+                    currentField.Append(c);
+                }
+            }
+            else
+            {
+                if (c == '"')
+                {
+                    inQuotes = true;
+                }
+                else if (c == ',')
+                {
+                    currentRecord.Add(currentField.ToString());
+                    currentField.Clear();
+                }
+                else if (c == '\r')
+                {
+                    // Ignore CR, handle LF next
+                }
+                else if (c == '\n')
+                {
+                    currentRecord.Add(currentField.ToString());
+                    records.Add(currentRecord);
+                    currentRecord = new List<string>();
+                    currentField.Clear();
+                }
+                else
+                {
+                    currentField.Append(c);
+                }
+            }
+        }
+        
+        // Add the last field and record if the file doesn't end with a newline
+        if (currentField.Length > 0 || currentRecord.Count > 0)
+        {
+            currentRecord.Add(currentField.ToString());
+            records.Add(currentRecord);
+        }
+        
+        return records;
+    }
 
+    // Quiz Results
+    public async Task<QuizResultDto> SaveQuizResultAsync(int userId, int deckId, QuizResultCreateDto dto)
+    {
+        var deck = await _unitOfWork.CustomDecks.Query()
+            .FirstOrDefaultAsync(d => d.DeckId == deckId && !d.IsDeleted);
+
+        if (deck == null)
+            throw new KeyNotFoundException("Bộ thẻ không tồn tại.");
+
+        var percentage = dto.TotalQuestions > 0 
+            ? Math.Round(((double)dto.CorrectAnswers / dto.TotalQuestions) * 100, 1) 
+            : 0;
+
+        var quizResult = new QuizResult
+        {
+            UserId = userId,
+            DeckId = deckId,
+            QuizType = dto.QuizType,
+            TotalQuestions = dto.TotalQuestions,
+            CorrectAnswers = dto.CorrectAnswers,
+            ScorePercentage = percentage,
+            CompletedAt = DateTime.UtcNow
+        };
+
+        await _unitOfWork.QuizResults.AddAsync(quizResult);
+        await _unitOfWork.SaveChangesAsync();
+
+        var user = await _unitOfWork.Users.GetByIdAsync(userId);
+
+        return new QuizResultDto
+        {
+            QuizResultId = quizResult.QuizResultId,
+            DeckId = deck.DeckId,
+            DeckName = deck.Name,
+            UserId = userId,
+            UserFullName = user?.FullName ?? string.Empty,
+            QuizType = quizResult.QuizType,
+            TotalQuestions = quizResult.TotalQuestions,
+            CorrectAnswers = quizResult.CorrectAnswers,
+            ScorePercentage = quizResult.ScorePercentage,
+            CompletedAt = quizResult.CompletedAt
+        };
+    }
+
+    public async Task<List<QuizResultDto>> GetQuizResultsByDeckAsync(int userId, int deckId)
+    {
+        return await _unitOfWork.QuizResults.Query()
+            .Include(q => q.CustomDeck)
+            .Include(q => q.User)
+            .Where(q => q.DeckId == deckId && q.UserId == userId && !q.IsDeleted)
+            .OrderByDescending(q => q.CompletedAt)
+            .Select(q => new QuizResultDto
+            {
+                QuizResultId = q.QuizResultId,
+                DeckId = q.DeckId,
+                DeckName = q.CustomDeck.Name,
+                UserId = q.UserId,
+                UserFullName = q.User.FullName,
+                QuizType = q.QuizType,
+                TotalQuestions = q.TotalQuestions,
+                CorrectAnswers = q.CorrectAnswers,
+                ScorePercentage = q.ScorePercentage,
+                CompletedAt = q.CompletedAt
+            })
+            .ToListAsync();
+    }
+
+    public async Task<List<QuizResultDto>> GetUserQuizHistoryAsync(int userId, int limit = 10)
+    {
+        return await _unitOfWork.QuizResults.Query()
+            .Include(q => q.CustomDeck)
+            .Include(q => q.User)
+            .Where(q => q.UserId == userId && !q.IsDeleted)
+            .OrderByDescending(q => q.CompletedAt)
+            .Take(limit)
+            .Select(q => new QuizResultDto
+            {
+                QuizResultId = q.QuizResultId,
+                DeckId = q.DeckId,
+                DeckName = q.CustomDeck.Name,
+                UserId = q.UserId,
+                UserFullName = q.User.FullName,
+                QuizType = q.QuizType,
+                TotalQuestions = q.TotalQuestions,
+                CorrectAnswers = q.CorrectAnswers,
+                ScorePercentage = q.ScorePercentage,
+                CompletedAt = q.CompletedAt
+            })
+            .ToListAsync();
+    }
 }
+
+

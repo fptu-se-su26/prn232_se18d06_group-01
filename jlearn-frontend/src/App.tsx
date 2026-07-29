@@ -8,6 +8,10 @@ import Dashboard from './pages/Dashboard';
 import CustomDecksPage from './pages/CustomDecksPage';
 import DeckDetailPage from './pages/DeckDetailPage';
 import CustomPreviewDeckPage from './pages/CustomPreviewDeckPage';
+import DeckQuizPage from './pages/DeckQuizPage';
+import ExplorePage from './pages/ExplorePage';
+import AdminDashboard from './pages/AdminDashboard';
+import LandingPage from './pages/LandingPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -16,11 +20,20 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// Admin Route Component
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated, user } = useAuth();
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  // Check if role is Admin or 1
+  if (user?.role !== 'Admin' && user?.role !== 1) return <Navigate to="/dashboard" replace />;
+  return <>{children}</>;
+};
+
 function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/" element={<LandingPage />} />
       
       {/* User Routes */}
       <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
@@ -28,10 +41,16 @@ function AppRoutes() {
         <Route path="/decks" element={<CustomDecksPage />} />
         <Route path="/decks/:id" element={<DeckDetailPage />} />
         <Route path="/decks/:id/preview" element={<CustomPreviewDeckPage />} />
+        <Route path="/decks/:id/quiz" element={<DeckQuizPage />} />
+        <Route path="/explore" element={<ExplorePage />} />
+        
+        {/* Admin Routes */}
+        <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
       </Route>
     </Routes>
   );
 }
+
 
 function App() {
   useEffect(() => {

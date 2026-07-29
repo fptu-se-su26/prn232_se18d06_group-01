@@ -8,5 +8,6 @@ public interface IUnitOfWork : IDisposable
     IGenericRepository<User> Users { get; }
     IGenericRepository<CustomDeck> CustomDecks { get; }
     IGenericRepository<CustomCard> CustomCards { get; }
+    IGenericRepository<QuizResult> QuizResults { get; }
     Task<int> SaveChangesAsync();
 }

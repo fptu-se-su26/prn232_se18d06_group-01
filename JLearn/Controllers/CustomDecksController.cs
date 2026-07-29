@@ -1,6 +1,7 @@
 using JLearn.DTOs.Common;
 using JLearn.DTOs.CustomCard;
 using JLearn.DTOs.CustomDeck;
+using JLearn.DTOs.QuizResult;
 using JLearn.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -261,5 +262,56 @@ public class CustomDecksController : ControllerBase
         }
     }
 
+    // POST: api/custom-decks/{id}/quiz-results
+    [HttpPost("{id:int}/quiz-results")]
+    public async Task<IActionResult> SaveQuizResult(int id, [FromBody] QuizResultCreateDto dto)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var result = await _customDeckService.SaveQuizResultAsync(userId, id, dto);
+            return Ok(ApiResponse<QuizResultDto>.SuccessResponse(result));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ApiResponse<object>.ErrorResponse(ex.Message, 404));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message, 400));
+        }
+    }
 
+    // GET: api/custom-decks/{id}/quiz-results
+    [HttpGet("{id:int}/quiz-results")]
+    public async Task<IActionResult> GetQuizResultsByDeck(int id)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var result = await _customDeckService.GetQuizResultsByDeckAsync(userId, id);
+            return Ok(ApiResponse<List<QuizResultDto>>.SuccessResponse(result));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message, 400));
+        }
+    }
+
+    // GET: api/custom-decks/quiz-history
+    [HttpGet("quiz-history")]
+    public async Task<IActionResult> GetUserQuizHistory([FromQuery] int limit = 10)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var result = await _customDeckService.GetUserQuizHistoryAsync(userId, limit);
+            return Ok(ApiResponse<List<QuizResultDto>>.SuccessResponse(result));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponse<object>.ErrorResponse(ex.Message, 400));
+        }
+    }
 }
+

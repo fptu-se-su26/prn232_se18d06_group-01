@@ -13,6 +13,7 @@ public class AppDbContext : DbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<CustomDeck> CustomDecks => Set<CustomDeck>();
     public DbSet<CustomCard> CustomCards => Set<CustomCard>();
+    public DbSet<QuizResult> QuizResults => Set<QuizResult>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -40,10 +41,25 @@ public class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
+        // === QuizResult ===
+        modelBuilder.Entity<QuizResult>(entity =>
+        {
+            entity.HasOne(q => q.CustomDeck)
+                .WithMany()
+                .HasForeignKey(q => q.DeckId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(q => q.User)
+                .WithMany()
+                .HasForeignKey(q => q.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+        });
+
         // === Global Query Filters (Soft Delete) ===
         modelBuilder.Entity<User>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<CustomDeck>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<CustomCard>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<QuizResult>().HasQueryFilter(e => !e.IsDeleted);
     }
 
     public override int SaveChanges()

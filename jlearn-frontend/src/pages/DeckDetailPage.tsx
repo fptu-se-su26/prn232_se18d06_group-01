@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { Plus, Sparkles, Trash2, ArrowLeft, Check, Info, BookOpen, Globe, Lock, Settings, FolderHeart } from 'lucide-react';
+import { Plus, Sparkles, Trash2, ArrowLeft, Check, Info, BookOpen, Globe, Lock, Settings, FolderHeart, HelpCircle, Trophy, Volume2 } from 'lucide-react';
+import { speakJapanese } from '../utils/speech';
 
 interface CustomCard {
   cardId: number;
@@ -21,6 +22,15 @@ interface CustomDeck {
   isPublic: boolean;
 }
 
+interface QuizResult {
+  quizResultId: number;
+  quizType: string;
+  totalQuestions: number;
+  correctAnswers: number;
+  scorePercentage: number;
+  completedAt: string;
+}
+
 const DeckDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
@@ -28,6 +38,7 @@ const DeckDetailPage: React.FC = () => {
   
   const [deck, setDeck] = useState<CustomDeck | null>(null);
   const [cards, setCards] = useState<CustomCard[]>([]);
+  const [quizHistory, setQuizHistory] = useState<QuizResult[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Deck Edit Form Modal
@@ -65,6 +76,14 @@ const DeckDetailPage: React.FC = () => {
       // Fetch cards inside this deck
       const cardsResponse = await api.get(`/custom-decks/${id}/cards`);
       setCards(cardsResponse.data.data || []);
+
+      // Fetch quiz history for this deck
+      try {
+        const historyResponse = await api.get(`/custom-decks/${id}/quiz-results`);
+        setQuizHistory(historyResponse.data.data || []);
+      } catch (e) {
+        // Silent catch if no history
+      }
     } catch (err) {
       console.error(err);
       setDeck(null);
@@ -280,7 +299,7 @@ const DeckDetailPage: React.FC = () => {
               <div>
                 <p className="font-bold">Bạn đang xem học phần công khai của thành viên khác</p>
                 <p className="mt-1 text-xs text-indigo-600 dark:text-indigo-400">
-                  Bạn có thể học tự do (Flashcard) trực tiếp. Để bắt đầu học theo tiến trình ôn tập SRS cá nhân và chỉnh sửa nội dung, vui lòng nhấn <b>"Lưu về thư viện"</b> bên phải.
+                  Bạn có thể học tự do (Flashcard) hoặc làm trắc nghiệm trực tiếp. Để bắt đầu tự do thêm, sửa, xóa thẻ từ vựng và sở hữu bộ thẻ này, vui lòng nhấn <b>"Lưu về thư viện"</b> bên phải.
                 </p>
               </div>
             </div>
@@ -300,13 +319,13 @@ const DeckDetailPage: React.FC = () => {
                     </>
                   ) : (
                     <>
-                      <Lock className="w-3.5 h-3.5 text-slate-450" />
+                      <Lock className="w-3.5 h-3.5 text-slate-400" />
                       Riêng tư
                     </>
                   )}
                 </div>
               </div>
-              <p className="mt-3 text-slate-600 dark:text-slate-350">
+              <p className="mt-3 text-slate-600 dark:text-slate-300">
                 {deck.description || 'Không có mô tả cho bộ thẻ này.'}
               </p>
             </div>
@@ -322,6 +341,19 @@ const DeckDetailPage: React.FC = () => {
               >
                 <BookOpen className="w-5 h-5 mr-2" />
                 Học tự do
+              </Link>
+
+              <Link
+                to={`/decks/${id}/quiz`}
+                className={`flex items-center justify-center px-5 py-3 rounded-xl font-bold transition-all duration-300 shadow-md active:scale-95 ${
+                  cards.length < 4
+                    ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed pointer-events-none shadow-none border border-slate-200 dark:border-slate-700'
+                    : 'bg-indigo-50 hover:bg-indigo-100/70 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30 shadow-sm'
+                }`}
+                title={cards.length < 4 ? 'Cần ít nhất 4 từ vựng để bắt đầu trắc nghiệm' : 'Bắt đầu kiểm tra trắc nghiệm'}
+              >
+                <HelpCircle className="w-5 h-5 mr-2" />
+                Kiểm tra (Quiz)
               </Link>
 
               {isOwner ? (
@@ -352,7 +384,7 @@ const DeckDetailPage: React.FC = () => {
                 <button
                   onClick={handleCloneDeck}
                   disabled={cloning}
-                  className="flex items-center justify-center bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white px-5 py-3 rounded-xl font-bold transition-all duration-300 shadow-md active:scale-95 disabled:from-slate-450 disabled:to-slate-500"
+                  className="flex items-center justify-center bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white px-5 py-3 rounded-xl font-bold transition-all duration-300 shadow-md active:scale-95 disabled:from-slate-400 disabled:to-slate-500"
                 >
                   <FolderHeart className="w-5 h-5 mr-2" />
                   {cloning ? 'Đang lưu...' : 'Lưu về thư viện'}
@@ -361,6 +393,43 @@ const DeckDetailPage: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Recent Quiz History */}
+        {quizHistory.length > 0 && (
+          <div className="mb-8 bg-white dark:bg-slate-800 rounded-3xl p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <Trophy className="w-5 h-5 text-amber-500" />
+                Lịch sử làm bài trắc nghiệm gần đây
+              </h3>
+              <span className="text-xs font-bold text-slate-400 dark:text-slate-500">
+                {quizHistory.length} lượt làm bài
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {quizHistory.slice(0, 3).map((res) => (
+                <div key={res.quizResultId} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-2 py-0.5 rounded uppercase">
+                      {res.quizType}
+                    </span>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                      {new Date(res.completedAt).toLocaleDateString('vi-VN')} {new Date(res.completedAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <span className={`text-lg font-black ${res.scorePercentage >= 80 ? 'text-amber-500' : 'text-indigo-600 dark:text-indigo-400'}`}>
+                      {res.scorePercentage}%
+                    </span>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">
+                      {res.correctAnswers}/{res.totalQuestions} đúng
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Cards Table */}
         <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700/50 shadow-sm overflow-hidden">
@@ -377,16 +446,26 @@ const DeckDetailPage: React.FC = () => {
                 {cards.map((card) => (
                   <tr key={card.cardId} className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
                     <td className="px-6 py-3">
-                      {isOwner ? (
-                        <input 
-                          type="text" 
-                          value={editStates[card.cardId]?.word ?? card.word}
-                          onChange={(e) => handleFieldChange(card.cardId, 'word', e.target.value)}
-                          className="w-full bg-transparent border-b border-transparent hover:border-slate-350 focus:border-indigo-500 focus:bg-slate-50 dark:focus:bg-slate-900 px-2 py-1 rounded transition-all outline-none text-indigo-650 dark:text-indigo-400 font-bold"
-                        />
-                      ) : (
-                        <span className="text-indigo-650 dark:text-indigo-400 font-bold px-2 py-1">{card.word}</span>
-                      )}
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={(e) => speakJapanese(editStates[card.cardId]?.word ?? card.word, e)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition-colors flex-shrink-0 cursor-pointer"
+                          title="Phát âm"
+                        >
+                          <Volume2 className="w-4 h-4" />
+                        </button>
+                        {isOwner ? (
+                          <input 
+                            type="text" 
+                            value={editStates[card.cardId]?.word ?? card.word}
+                            onChange={(e) => handleFieldChange(card.cardId, 'word', e.target.value)}
+                            className="w-full bg-transparent border-b border-transparent hover:border-slate-300 focus:border-indigo-500 focus:bg-slate-50 dark:focus:bg-slate-900 px-2 py-1 rounded transition-all outline-none text-indigo-600 dark:text-indigo-400 font-bold"
+                          />
+                        ) : (
+                          <span className="text-indigo-600 dark:text-indigo-400 font-bold px-2 py-1">{card.word}</span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-3">
                       {isOwner ? (
@@ -394,7 +473,7 @@ const DeckDetailPage: React.FC = () => {
                           type="text" 
                           value={editStates[card.cardId]?.meaning ?? card.meaning}
                           onChange={(e) => handleFieldChange(card.cardId, 'meaning', e.target.value)}
-                          className="w-full bg-transparent border-b border-transparent hover:border-slate-350 focus:border-indigo-500 focus:bg-slate-50 dark:focus:bg-slate-900 px-2 py-1 rounded transition-all outline-none text-slate-900 dark:text-white"
+                          className="w-full bg-transparent border-b border-transparent hover:border-slate-300 focus:border-indigo-500 focus:bg-slate-50 dark:focus:bg-slate-900 px-2 py-1 rounded transition-all outline-none text-slate-900 dark:text-white"
                         />
                       ) : (
                         <span className="text-slate-900 dark:text-white px-2 py-1 block max-w-md break-words">{card.meaning}</span>

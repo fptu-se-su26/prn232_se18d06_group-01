@@ -29,10 +29,9 @@ public class LoginDto
 
 public class RefreshTokenDto
 {
-    [Required]
-    public string AccessToken { get; set; } = string.Empty;
+    public string? AccessToken { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "RefreshToken là bắt buộc")]
     public string RefreshToken { get; set; } = string.Empty;
 }
 

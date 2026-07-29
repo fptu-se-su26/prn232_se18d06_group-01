@@ -1,69 +1,104 @@
-# 📋 Báo Cáo Kiểm Toán Dự Án (Project Audit Report) — JLearn
+# 📋 Báo Cáo Kiểm Toán & Kỹ Thuật Dự Án (Project Audit Report) — JLearn
 
-> **Tài liệu kiểm toán mã nguồn và cấu trúc hệ thống JLearn**  
+> **Tài liệu kiểm toán mã nguồn, kiến trúc và danh mục tính năng của hệ thống JLearn**  
 > *Dự án phục vụ môn học PRN232 — FPT University*  
-> *Ngày thực hiện cập nhật: 15/06/2026*
+> *Lần cập nhật cuối: 20/07/2026*
 
 ---
 
 ## 1. Tổng quan Dự án (Project Overview)
 
-**JLearn** là nền tảng học tiếng Nhật trực tuyến, cho phép người dùng tự tạo các bộ thẻ học và thẻ từ vựng để ôn tập linh hoạt.
+**JLearn** là nền tảng Web học tiếng Nhật trực tuyến hỗ trợ cá nhân hóa việc học từ vựng thông qua cơ chế tự tạo bộ thẻ, lật thẻ 3D trực quan, kiểm tra trắc nghiệm tương tác và chia sẻ bộ thẻ trong cộng đồng.
 
-### 🔄 Thay đổi lớn: Loại bỏ hoàn toàn thuật toán SM-2 (SRS)
-Để đơn giản hóa nghiệp vụ học tập, tối ưu hóa trải nghiệm người dùng và giảm bớt sự phức tạp không cần thiết, dự án đã thực hiện một đợt tái cấu trúc lớn:
-* **Trước đây**: Sử dụng thuật toán Lặp lại ngắt quãng (Spaced Repetition - SM-2) với cơ chế hẹn lịch ôn tập dựa trên Ease Factor và số lần lặp lại (rating 1-5).
-* **Hiện tại**: **Loại bỏ hoàn toàn thuật toán SM-2 và cơ chế hẹn giờ ôn tập**. Thay thế bằng **Chế độ Học tự do (Free Study Mode)** trực quan: người dùng tự do lật thẻ, học bất kỳ lúc nào họ muốn và điều khiển qua phím tắt.
+### 🔄 Các đợt cải tiến & nâng cấp quan trọng:
+1. **Loại bỏ hoàn toàn thuật toán SM-2 (SRS):** Loại bỏ lịch hẹn ôn tập cứng nhắc và các nút đánh giá cấp độ 1-5. Thay bằng 2 chế độ học năng động:
+   - **Học Tự Do (Free Study Mode):** Lật thẻ 3D với phím tắt điều hướng nhanh (`Space`, `←/A`, `→/D`).
+   - **Trắc Nghiệm (Quiz Mode):** Bài kiểm tra 4 lựa chọn tự động sinh ngẫu nhiên từ bộ thẻ với 3 chế độ (Nhật-Việt, Việt-Nhật, Trộn).
+2. **Hệ thống Cộng đồng & Nhân bản (Public & Clone Decks):** Người học có thể công khai bộ thẻ của mình hoặc sao chép bộ thẻ công khai của thành viên khác về thư viện cá nhân với 1-click.
+3. **Chỉnh sửa trực tiếp (Inline Editing) & Bulk CSV Import:** Cho phép sửa trực tiếp từ vựng trên bảng danh sách và import hàng loạt bằng văn bản CSV (hỗ trợ ngoặc kép).
+4. **Hệ thống Theme Sáng/Tối chủ động (Dark Mode):** Sử dụng `@custom-variant dark` của Tailwind v4 cùng công tắc chuyển đổi trên Sidebar lưu trạng thái vào `localStorage`.
+5. **Docker Compose Orchestration:** Đóng gói hoàn chỉnh SQL Server 2022, Backend ASP.NET Core Web API 8.0 và Frontend Nginx React App.
 
 ---
 
-## 2. Kiểm toán cấu trúc mã nguồn hiện tại (Codebase Audit)
+## 2. Kiểm toán Kiến trúc & Mã Nguồn (Codebase Audit)
 
 ### 🖥️ Backend (.NET 8 Web API)
-Mã nguồn backend nằm trong thư mục `JLearn/` và chạy ổn định trên .NET 8/10 SDK.
+Mã nguồn Backend nằm trong thư mục `JLearn/` tuân thủ kiến trúc phân lớp (N-Tier) kết hợp **Repository Pattern & Unit of Work**:
 
-* **Các thực thể (Models)**:
-  * `User.cs` & `UserRole.cs`: Quản lý người dùng và vai trò.
-  * `CustomDeck.cs`: Bộ thẻ học. Bổ sung trường `IsPublic` (boolean) để thiết lập chế độ công khai/riêng tư.
-  * `CustomCard.cs`: Thẻ từ vựng nằm trong bộ thẻ. **Đã xóa bỏ hoàn toàn** các cột thuật toán cũ: `Level`, `NextReviewDate`, `EaseFactor`, `Repetitions`, `IntervalDays`.
-* **Database & Migration**:
-  * Đã áp dụng migration **`RemoveSrsFields`** để dọn sạch các cột dữ liệu liên quan đến SM-2 trong cơ sở dữ liệu SQL Server.
-  * Giữ nguyên cơ chế xóa mềm (`IsDeleted`) thông qua Global Query Filter trong `AppDbContext.cs`.
-* **Dịch vụ & API Controller (`CustomDecksController.cs` & `CustomDeckService.cs`)**:
-  * Đã xóa bỏ các API endpoints cũ: `/api/custom-decks/{id}/reviews` (hẹn lịch ôn) và `/api/custom-decks/{id}/review` (gửi đánh giá).
-  * **Tính năng Public & Clone**: Thêm API `GET /api/custom-decks/public` để lấy danh sách bộ thẻ công khai và `POST /api/custom-decks/{id}/clone` giúp người dùng copy bộ thẻ công khai của người khác thành bộ thẻ cá nhân của mình.
-  * **CSV Import**: Nâng cấp phương thức `ImportCardsAsync` để tự động phân tích (parse) chuỗi định dạng CSV tiêu chuẩn (hỗ trợ dấu phẩy và nháy kép `"word","meaning"`), giúp người dùng import từ vựng hàng loạt dễ dàng từ file Excel/CSV.
+* **Models Layer (`JLearn/Models/`)**:
+  * `User.cs`: Quản lý người dùng, mật khẩu hash, role và token refresh.
+  * `CustomDeck.cs`: Bộ thẻ từ vựng với thuộc tính `IsPublic` (Boolean) để thiết lập chia sẻ cộng đồng.
+  * `CustomCard.cs`: Thẻ từ vựng chứa `Word` (Kanji/Từ vựng) và `Meaning` (Nghĩa tiếng Việt). Đã dọn sạch 5 cột SRS thừa (`Level`, `NextReviewDate`, `EaseFactor`, `Repetitions`, `IntervalDays`).
+* **Database & Migration (`JLearn/Data/` & `JLearn/Migrations/`)**:
+  * Đã áp dụng migration tinh gọn `InitialCreate`.
+  * Đã cài đặt Global Query Filter trong `AppDbContext.cs` để tự động loại bỏ các bản ghi đã xóa mềm (`IsDeleted = true`).
+  * `DbSeeder.cs`: Tự động nạp tài khoản dùng thử (`admin@test.com` / `123`) và các bộ thẻ tiếng Nhật mẫu (N5, N4) ở chế độ Public.
+* **Services Layer (`JLearn/Services/`)**:
+  * `AuthService.cs`: Xử lý đăng ký, đăng nhập JWT, làm mới token.
+  * `CustomDeckService.cs`: Logic CRUD bộ thẻ cá nhân, lấy danh sách bộ thẻ công khai, nhân bản bộ thẻ (`CloneDeckAsync`), và thuật toán bóc tách chuỗi CSV nâng cao (`ImportCardsAsync`) hỗ trợ ngoặc kép bao quanh dấu phẩy.
+* **Controllers Layer (`JLearn/Controllers/`)**:
+  * `AuthController.cs`: Endpoints `/api/auth/register`, `/api/auth/login`, `/api/auth/refresh-token`.
+  * `CustomDecksController.cs`: Endpoints CRUD bộ thẻ, quản lý thẻ từ vựng, import CSV, public decks và clone deck.
 
 ---
 
-### 🎨 Frontend (React + TypeScript)
-Mã nguồn frontend đã được dọn dẹp triệt để các file và route dư thừa, chỉ giữ lại giao diện gọn nhẹ và hiện đại.
+### 🎨 Frontend (React 18 + TypeScript + Tailwind CSS v4)
+Mã nguồn Frontend nằm trong thư mục `jlearn-frontend/` được dọn dẹp sạch sẽ code rác, cấu hình TypeScript chặt chẽ:
 
-* **Hệ thống các Trang (Pages)**:
-  * `Login.tsx`: Đăng nhập hệ thống.
-  * `Dashboard.tsx`: Dashboard tổng quan thông tin người dùng.
-  * `CustomDecksPage.tsx`: Quản lý các bộ thẻ cá nhân của người dùng và duyệt danh sách bộ thẻ công khai chia sẻ bởi người khác.
+* **Hệ thống Trang (Pages)**:
+  * `Login.tsx`: Trang đăng nhập giao diện Indigo mượt mà, hỗ trợ Dark Mode.
+  * `Dashboard.tsx`: Hiển thị số liệu thống kê cá nhân và danh sách bộ thẻ cộng đồng cho phép Clone ngay lập tức.
+  * `CustomDecksPage.tsx`: Quản lý bộ thẻ cá nhân và chuyển tab duyệt bộ thẻ cộng đồng.
   * `DeckDetailPage.tsx`: 
-    * Xem danh sách từ vựng chi tiết.
-    * CRUD thẻ từ trực tiếp trên giao diện (hỗ trợ chỉnh sửa nhanh inline).
-    * Công cụ Import hàng loạt từ CSV.
-    * Tùy chỉnh trạng thái Công khai/Riêng tư của bộ thẻ.
-  * `CustomPreviewDeckPage.tsx` (Chế độ Học tự do):
-    * Giao diện thẻ lật 3D đẹp mắt kết nối dữ liệu thực tế.
-    * Hỗ trợ bộ phím tắt thân thiện với người dùng: Phím `Space` để lật thẻ, `←/A` quay lại thẻ trước, `→/D` đi tới thẻ tiếp theo.
-* **Xác thực & Gọi API**:
-  * Sử dụng Axios client tích hợp tự động xử lý token JWT và cơ chế Refresh Token khi hết hạn (`401 Unauthorized`).
+    * Xem danh sách từ vựng dạng bảng.
+    * Sửa từ vựng trực tiếp (Inline Editing) với nút **Save** linh động.
+    * Import từ vựng hàng loạt qua CSV Modal.
+    * Nút điều hướng nhanh đến **"Học tự do"** và **"Kiểm tra (Quiz)"**.
+  * `CustomPreviewDeckPage.tsx`: Chế độ học Flashcard 3D với bộ phím tắt `Space`, `←/A`, `→/D`.
+  * `DeckQuizPage.tsx`: Trang thi trắc nghiệm tương tác với 3 chế độ (Nhật-Việt, Việt-Nhật, Trộn), phản hồi đúng/sai tức thì và tóm tắt kết quả bài làm.
+* **Layout & Theme Switcher**:
+  * `MainLayout.tsx`: Thanh điều hướng Sidebar đáp ứng (Responsive), tự động highlight trang active và tích hợp công tắc đổi theme Mặt trời/Mặt trăng.
+  * `index.css` & `App.tsx`: Khởi tạo và đồng bộ class `.dark` trên toàn bộ ứng dụng.
 
 ---
 
-## 3. Đánh giá Ưu điểm & Nợ kỹ thuật (Highlights & Technical Debt)
+## 3. Danh Mục RESTful API Specification
 
-### ✅ Điểm sáng (Highlights)
-* **Trải nghiệm học tập mượt mà**: Việc loại bỏ SM-2 giúp giao diện ôn tập không còn phức tạp với các nút đánh giá 1-5, người dùng chỉ cần tập trung lật thẻ và học tự do.
-* **Tính năng Chia sẻ cộng đồng**: Cơ chế Public/Clone Decks giúp tăng tính tương tác giữa các tài khoản, người học có thể chia sẻ bộ từ vựng cho nhau.
-* **Dọn dẹp code tối đa**: Đã xóa bỏ hoàn toàn tất cả các file thừa từ giai đoạn trước (như QuizPage, các trang quản trị cũ Courses/Lessons của Admin), giúp dự án không còn code "rác" (dead code).
+| Endpoint | Method | Auth | Mô tả |
+|---|---|---|---|
+| `/api/auth/register` | `POST` | Public | Đăng ký tài khoản người dùng |
+| `/api/auth/login` | `POST` | Public | Đăng nhập nhận JWT Token |
+| `/api/auth/refresh-token` | `POST` | Public | Cấp lại Access Token mới |
+| `/api/custom-decks` | `GET` | Bearer | Lấy bộ thẻ cá nhân |
+| `/api/custom-decks/public` | `GET` | Bearer | Lấy bộ thẻ cộng đồng công khai |
+| `/api/custom-decks/{id}` | `GET` | Bearer | Chi tiết 1 bộ thẻ |
+| `/api/custom-decks` | `POST` | Bearer | Tạo bộ thẻ mới |
+| `/api/custom-decks/{id}` | `PUT` | Bearer | Sửa thông tin bộ thẻ |
+| `/api/custom-decks/{id}` | `DELETE` | Bearer | Xóa mềm bộ thẻ |
+| `/api/custom-decks/{id}/clone` | `POST` | Bearer | Nhân bản bộ thẻ công khai |
+| `/api/custom-decks/{id}/cards` | `GET` | Bearer | Lấy danh sách thẻ từ vựng |
+| `/api/custom-decks/{id}/cards` | `POST` | Bearer | Thêm 1 thẻ thủ công |
+| `/api/custom-decks/{id}/cards/{cardId}` | `PUT` | Bearer | Sửa trực tiếp từ vựng/nghĩa |
+| `/api/custom-decks/{id}/cards/{cardId}` | `DELETE` | Bearer | Xóa 1 thẻ từ vựng |
+| `/api/custom-decks/{id}/import` | `POST` | Bearer | Import hàng loạt từ CSV |
 
-### 🛠️ Định hướng phát triển tiếp theo (Next Steps)
-1. **Cập nhật Seed Data**: Bổ sung thêm nhiều bộ thẻ từ vựng tiếng Nhật mẫu (như từ vựng N5, N4, Minna no Nihongo) ở trạng thái Public để người dùng mới đăng nhập có thể Clone và học ngay lập tức.
-2. **Xuất file Excel/CSV**: Bổ sung tính năng Export bộ thẻ hiện tại ra file CSV để người dùng có thể lưu trữ ngoại tuyến (offline).
-3. **Thống kê Tiến độ**: Bổ sung tính năng đánh dấu thẻ "Đã thuộc" (nhẹ nhàng, không dùng thuật toán hẹn lịch) để hiển thị thanh phần trăm tiến trình hoàn thành ngay trong trang chi tiết bộ thẻ.
+---
+
+## 4. Hướng Dẫn Vận Hành Môi Trường (Deployment Guide)
+
+### Triển khai bằng Docker Compose:
+```bash
+docker-compose up -d --build
+```
+- **Frontend App**: [http://localhost](http://localhost)
+- **Backend Swagger UI**: [http://localhost:5225/swagger](http://localhost:5225/swagger)
+- **Database**: `localhost:1433` (SQL Server 2022)
+
+---
+
+## 5. Đánh Giá Ưu Điểm & Kết Luận
+
+1. **Trải nghiệm Học tập Toàn diện**: Kết hợp linh hoạt giữa việc học lật thẻ tự do và trắc nghiệm chọn đáp án, giúp người học ghi nhớ từ vựng nhanh chóng.
+2. **Tính Năng Chia Sẻ Cao**: Cơ chế Public/Clone giúp xây dựng kho bộ thẻ phong phú từ sự đóng góp của cộng đồng.
+3. **Mã Nguồn Sạch Sẽ & Chuẩn Hóa**: Loại bỏ hoàn toàn dead code, áp dụng đầy đủ các Best Practices (JWT Refresh, Repository Pattern, Selector Dark Mode, Docker Compose).

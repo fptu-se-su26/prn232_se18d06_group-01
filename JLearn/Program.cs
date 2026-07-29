@@ -26,6 +26,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<JwtHelper>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICustomDeckService, CustomDeckService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 
 // ===== Caching =====
 builder.Services.AddMemoryCache();

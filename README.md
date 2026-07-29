@@ -1,116 +1,94 @@
-# 🇯🇵 JLearn — Nền Tảng Học & Quản Lý Từ Vựng Tiếng Nhật Cá Nhân
+# 🇯🇵 JLearn — Modern Japanese Vocabulary Learning & Management Platform
 
-## 📋 Tổng quan
+## 📋 Overview
 
-**JLearn** là một ứng dụng Web học tiếng Nhật trực tuyến, được thiết kế để hỗ trợ người dùng tự tạo, quản lý và chia sẻ các bộ thẻ từ vựng tiếng Nhật theo nhu cầu cá nhân. Ứng dụng tập trung vào tính tự do học tập, hỗ trợ chế độ lật thẻ 3D trực quan và khả năng sao chép (clone) các bộ thẻ hữu ích từ cộng đồng.
+**JLearn** is a full-stack, enterprise-grade web application designed to help users create, manage, and share Japanese vocabulary decks. Built with modern technologies and clean architecture, JLearn emphasizes interactive learning through 3D flashcards, community sharing, and a robust Admin dashboard for system management.
+
+This project was built to demonstrate proficiency in modern **C# .NET 8**, **React 19**, **SQL Server**, and **Docker**, aligning with industry best practices such as N-Tier Architecture, Clean Code, and secure RESTful APIs.
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Thành phần | Công nghệ sử dụng |
+| Component | Technologies Used |
 |---|---|
-| **Frontend** | React 18 (Vite), TypeScript, Tailwind CSS, Lucide Icons, Axios |
+| **Frontend** | React 19 (Vite), TypeScript, Tailwind CSS v4, Lucide Icons, Axios |
 | **Backend** | .NET 8 (ASP.NET Core Web API), C# |
-| **Database** | SQL Server (EF Core 8) |
-| **Bảo mật & Auth** | JWT (Access Token + Refresh Token) |
-| **Kiến trúc** | Layered (N-Tier) + Repository Pattern + Unit of Work |
-| **Docker** | Hỗ trợ Dockerfile riêng cho từng phần và file Docker Compose chạy toàn hệ thống |
+| **Database** | SQL Server 2022, Entity Framework Core 8 |
+| **Security & Auth** | JSON Web Tokens (JWT), Role-Based Access Control (RBAC), BCrypt |
+| **Architecture** | N-Tier Architecture, Repository Pattern, Unit of Work, Dependency Injection |
+| **DevOps** | Docker, Docker Compose, Nginx |
 
 ---
 
-## 🚀 Tính năng chính
+## 🚀 Key Features
 
-- **Quản lý bộ thẻ từ vựng cá nhân**: Thêm, sửa, xóa các bộ thẻ từ vựng tùy ý.
-- **Chế độ Công khai & Chia sẻ**: Cho phép đặt bộ thẻ ở chế độ **Công khai (Public)** để chia sẻ với người dùng khác hoặc **Riêng tư (Private)**.
-- **Khám phá & Sao chép (Clone Deck)**: Xem danh sách các bộ thẻ cộng đồng và dễ dàng sao chép về thư viện của riêng mình để chỉnh sửa và học.
-- **Chỉnh sửa trực tiếp (Inline Editing)**: Chỉnh sửa nhanh từ vựng hoặc nghĩa của thẻ ngay trên bảng danh sách của trang chi tiết bộ thẻ mà không cần mở pop-up.
-- **Nhập từ vựng hàng loạt (CSV Import)**: Hỗ trợ import hàng loạt từ vựng qua văn bản CSV tiêu chuẩn (hỗ trợ ngoặc kép bao quanh chuỗi và dấu phẩy).
-- **Chế độ học tự do (Free Study Mode)**: Học từ vựng thông qua thẻ lật 3D tương tác. Hỗ trợ đầy đủ bộ phím tắt thân thiện:
-  - `Phím cách (Space)`: Lật thẻ.
-  - `Mũi tên phải (→) / Phím D`: Chuyển sang thẻ tiếp theo.
-  - `Mũi tên trái (←) / Phím A`: Quay lại thẻ trước.
+### 👨‍🎓 For Learners
+- **Deck Management**: Create, edit, and delete personal vocabulary decks.
+- **Interactive Flashcards**: Study using 3D flipping flashcards with intuitive keyboard shortcuts (Space to flip, Arrows to navigate).
+- **Quiz System**: Auto-generate multiple-choice quizzes (JP-VI, VI-JP, Mixed) and track scores.
+- **Community Explore**: Browse public decks created by other users and clone them to your personal library.
+- **Bulk Import**: Quickly import hundreds of vocabulary words using standard CSV format.
+- **Inline Editing**: Fast, spreadsheet-like editing directly from the deck detail page.
+
+### 🛡️ For Administrators
+- **Admin Dashboard**: Comprehensive overview of system statistics (Total Users, Decks, Quiz Attempts) with a modern UI.
+- **User Management**: Change user roles, lock/unlock accounts, or soft-delete abusive users.
+- **Content Moderation**: Review and delete public decks that violate community guidelines.
 
 ---
 
-## 📁 Cấu trúc thư mục dự án
+## 📁 Project Structure
 
-```
+```text
 JLearn/
 ├── JLearn/                    # Backend - .NET 8 Web API
-│   ├── Controllers/           # Các API Controller
-│   ├── Models/                # Định nghĩa Entity Database
-│   ├── Data/                  # DbContext và Seed dữ liệu mẫu
-│   ├── DTOs/                  # Đối tượng truyền tải dữ liệu
-│   ├── Services/              # Xử lý logic nghiệp vụ chính
-│   ├── Repositories/          # Tầng tương tác với DB
-│   ├── UnitOfWork/            # Quản lý giao dịch EF Core
+│   ├── Controllers/           # RESTful API Endpoints
+│   ├── Models/                # Entity Framework Core Models
+│   ├── Data/                  # DbContext & Automatic Data Seeding
+│   ├── DTOs/                  # Data Transfer Objects
+│   ├── Services/              # Business Logic Layer
+│   ├── Repositories/          # Data Access Layer (Generic Repository)
+│   ├── UnitOfWork/            # Transaction Management
 │   └── Migrations/            # EF Core Migrations
-├── jlearn-frontend/           # Frontend - React + Vite + TS
+├── jlearn-frontend/           # Frontend - React + Vite + TypeScript
 │   ├── src/
-│   │   ├── components/        # Component tái sử dụng
-│   │   ├── contexts/          # Auth Context quản lý đăng nhập
-│   │   ├── layouts/           # Bố cục giao diện (Main Layout)
-│   │   ├── pages/             # Trang chính (Dashboard, Decks, Detail, Preview)
-│   │   └── services/          # Gọi API Axios
-│   ├── Dockerfile
-│   └── nginx.conf             # Cấu hình Nginx chạy production frontend
-├── docs/                      # Nhật ký học tập và tài liệu sử dụng AI
-├── docker-compose.yml         # File khởi động toàn bộ dự án bằng Docker
-├── JLearn.sln
+│   │   ├── components/        # Reusable UI Components
+│   │   ├── contexts/          # Global State (AuthContext)
+│   │   ├── pages/             # Main Views (Dashboard, Admin, Quiz)
+│   │   └── services/          # API Integration (Axios Interceptors)
+│   ├── Dockerfile             # Multi-stage build with Nginx
+├── docker-compose.yml         # Container Orchestration
 └── README.md
 ```
 
 ---
 
-## ⚙️ Hướng dẫn cài đặt và khởi chạy
+## ⚙️ Getting Started
 
-Dự án hỗ trợ chạy thông qua Docker Compose (khuyên dùng) hoặc chạy thủ công từng dịch vụ.
+The easiest way to run the project is using **Docker Compose**.
 
-### Cách 1: Khởi chạy nhanh bằng Docker Compose (Khuyên dùng)
+### Prerequisites
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
 
-Yêu cầu máy tính đã cài đặt và khởi động **Docker Desktop**.
+### Quick Start (Docker)
 
-1. Tại thư mục gốc của dự án, chạy lệnh:
+1. Clone the repository and navigate to the root directory.
+2. Build and start the containers:
    ```bash
    docker-compose up -d --build
    ```
-2. Sau khi Docker khởi chạy thành công, truy cập các địa chỉ sau:
-   - **Frontend (Giao diện học)**: [http://localhost](http://localhost)
-   - **Backend API (Swagger)**: [http://localhost:5225/swagger](http://localhost:5225/swagger)
+3. Access the application:
+   - **Frontend (Web App)**: [http://localhost](http://localhost)
+   - **Backend API (Swagger UI)**: [http://localhost:5225/swagger](http://localhost:5225/swagger)
 
 ---
 
-### Cách 2: Khởi chạy thủ công từng phần
+## 🔑 Demo Accounts (Auto-Seeded)
 
-#### 1. Khởi động SQL Server
-Chạy SQL Server thông qua Docker container:
-```bash
-docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=JLearn@2024!" -p 1433:1433 --name jlearn-db -d mcr.microsoft.com/mssql/server:2022-latest
-```
+When the database is initialized, it automatically seeds the following accounts:
 
-#### 2. Khởi chạy Backend (.NET API)
-```bash
-cd JLearn
-# Tạo database và apply migrations
-dotnet ef database update
-# Chạy dự án
-dotnet run
-```
-*Backend API chạy tại địa chỉ: `http://localhost:5225`.*
+* **Admin Account**: `admin@jlearn.com` / Password: `Admin@123`
+* **Test Account**: `admin@test.com` / Password: `123`
 
-#### 3. Khởi chạy Frontend (React)
-```bash
-cd jlearn-frontend
-npm install
-npm run dev
-```
-*Frontend chạy tại địa chỉ: `http://localhost:5173`.*
-
----
-
-## 🔑 Tài khoản thử nghiệm (Seed Data)
-
-Khi cơ sở dữ liệu khởi tạo lần đầu, các tài khoản và dữ liệu mẫu sau sẽ được tự động thêm vào:
-* **Tài khoản dùng thử**: `admin@test.com` / Mật khẩu: `123`
-* **Bộ thẻ công khai có sẵn**: Các bộ thẻ từ vựng tiếng Nhật mẫu (như từ vựng N5, N4) đã được thêm sẵn ở trạng thái Công khai để người dùng mới có thể xem và Clone ngay trên Dashboard.
+*Note: Public sample decks (N5, N4 vocabulary) are also auto-seeded for immediate testing of the Explore feature.*
