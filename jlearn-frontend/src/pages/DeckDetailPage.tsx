@@ -395,22 +395,17 @@ const DeckDetailPage: React.FC = () => {
         </div>
 
         {/* Recent Quiz History */}
-        <div className="mb-8 bg-white dark:bg-slate-800 rounded-3xl p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
-              <Trophy className="w-5 h-5 text-amber-500" />
-              Lịch sử làm bài trắc nghiệm gần đây
-            </h3>
-            <span className="text-xs font-bold text-slate-400 dark:text-slate-500">
-              {quizHistory.length} lượt làm bài
-            </span>
-          </div>
-
-          {quizHistory.length === 0 ? (
-            <p className="text-sm text-slate-400 dark:text-slate-500 py-3 italic">
-              Chưa có lượt làm bài trắc nghiệm nào cho bộ thẻ này. Bấm <strong className="text-indigo-600 dark:text-indigo-400">"Kiểm tra (Quiz)"</strong> ở trên để bắt đầu thử sức!
-            </p>
-          ) : (
+        {quizHistory.length > 0 && (
+          <div className="mb-8 bg-white dark:bg-slate-800 rounded-3xl p-6 border border-slate-100 dark:border-slate-700/50 shadow-sm space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <Trophy className="w-5 h-5 text-amber-500" />
+                Lịch sử làm bài trắc nghiệm gần đây
+              </h3>
+              <span className="text-xs font-bold text-slate-400 dark:text-slate-500">
+                {quizHistory.length} lượt làm bài
+              </span>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
               {quizHistory.slice(0, 3).map((res) => (
                 <div key={res.quizResultId} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-700/60 flex items-center justify-between">
@@ -433,8 +428,8 @@ const DeckDetailPage: React.FC = () => {
                 </div>
               ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Cards Table */}
         <div className="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700/50 shadow-sm overflow-hidden">

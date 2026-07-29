@@ -11,6 +11,7 @@ import CustomPreviewDeckPage from './pages/CustomPreviewDeckPage';
 import DeckQuizPage from './pages/DeckQuizPage';
 import ExplorePage from './pages/ExplorePage';
 import AdminDashboard from './pages/AdminDashboard';
+import LandingPage from './pages/LandingPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -32,7 +33,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/" element={<LandingPage />} />
       
       {/* User Routes */}
       <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
